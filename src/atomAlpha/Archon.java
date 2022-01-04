@@ -7,36 +7,60 @@ public class Archon {
     static Queue<RobotType> startSpawnOrder = new LinkedList<RobotType>();
     static int startSpawn = 0;
 
+    static ArrayList<RobotType> spawnOrder = new ArrayList<RobotType>();
+    static int spawnOrderCounter = 0;
+
     static void runArchon(RobotController rc) throws GameActionException {
         while (startSpawn <= 9) {
             gameStartSequence(rc);
         }
+
+        normalSpawnSequence(rc);
+    }
+
+    public static void normalSpawnSequence(RobotController rc) throws GameActionException {
+        RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
+        Direction spawnDir = openSpawnLocation(rc, spawn);
+
+        switch (spawn) {
+            case SOLDIER:
+                if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                    rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                }
+                break;
+            case MINER:
+                if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                    rc.buildRobot(RobotType.MINER, spawnDir);
+                }
+                break;
+        }
+        spawnOrderCounter++;
     }
 
     //initial starting logic
     public static void gameStartSequence(RobotController rc) throws GameActionException {
         switch (startSpawn) {
             case 0:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTH)) {
-                    rc.buildRobot(RobotType.MINER, Direction.NORTH);
+                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHEAST)) {
+                    rc.buildRobot(RobotType.MINER, Direction.NORTHEAST);
                     startSpawn++;
                 }
                 break;
             case 1:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.EAST)) {
-                    rc.buildRobot(RobotType.MINER, Direction.EAST);
+                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHWEST)) {
+                    rc.buildRobot(RobotType.MINER, Direction.NORTHWEST);
                     startSpawn++;
                 }
                 break;
             case 2:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.SOUTH)) {
-                    rc.buildRobot(RobotType.MINER, Direction.SOUTH);
+                if (rc.canBuildRobot(RobotType.MINER, Direction.SOUTHEAST)) {
+                    rc.buildRobot(RobotType.MINER, Direction.SOUTHEAST);
                     startSpawn++;
                 }
                 break;
             case 3:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.WEST)) {
-                    rc.buildRobot(RobotType.MINER, Direction.WEST);
+                if (rc.canBuildRobot(RobotType.MINER, Direction.SOUTHWEST)) {
+                    rc.buildRobot(RobotType.MINER, Direction.SOUTHWEST);
                     startSpawn++;
                 }
                 break;
@@ -81,7 +105,11 @@ public class Archon {
 
     //unit initilization 
     public static void init() {
-
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.MINER);
     }
 
     //returns open spawn direction
