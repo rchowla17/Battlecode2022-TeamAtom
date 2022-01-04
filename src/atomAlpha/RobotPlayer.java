@@ -3,14 +3,31 @@ package atomAlpha;
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
-
-    @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
-        rc.setIndicatorString("Hello world!");
+
+        RobotType type = rc.getType();
+
+        switch (type) {
+            case ARCHON:
+                Archon.init();
+                break;
+            case MINER:
+                break;
+            case SOLDIER:
+                break;
+            case LABORATORY:
+                break;
+            case WATCHTOWER:
+                break;
+            case BUILDER:
+                break;
+            case SAGE:
+                break;
+        }
+
         while (true) {
-            Data.turnCount += 1;
             try {
-                switch (rc.getType()) {
+                switch (type) {
                     case ARCHON:
                         Archon.runArchon(rc);
                         break;

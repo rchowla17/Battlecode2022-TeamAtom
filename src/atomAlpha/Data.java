@@ -15,5 +15,4 @@ public class Data {
             Direction.NORTHWEST,
     };
     static final Random rng = new Random(6147);
-    static int turnCount = 0;
 }
