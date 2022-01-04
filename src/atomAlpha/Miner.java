@@ -3,20 +3,23 @@ package atomAlpha;
 import battlecode.common.*;
 import java.util.*;
 
-@SuppressWarnings("unused")
 public class Miner {
     static boolean canMineGold = false;
     static MapLocation currentLoc;
 
     static void runMiner(RobotController rc) throws GameActionException {
+        rc.setIndicatorString("");
         currentLoc = rc.getLocation();
 
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
 
         MetalLocation target = findNearestMetalLocation(metalLocations);
-        int distanceToTarget = currentLoc.distanceSquaredTo(target.location);
-
+        int distanceToTarget = -1;
         if (target != null) {
+            distanceToTarget = currentLoc.distanceSquaredTo(target.location);
+        }
+
+        if (distanceToTarget != -1) {
             if (distanceToTarget <= 2) {
                 if (target.type.equals("LEAD")) {
                     for (int dx = -1; dx <= 1; dx++) {
@@ -24,25 +27,30 @@ public class Miner {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                             while (rc.canMineLead(mineLocation)) {
                                 rc.mineLead(mineLocation);
+                                rc.setIndicatorString("MINING");
                             }
                         }
                     }
-                    metalLocations = senseNearbyMetals(rc);
-                    target = findNearestMetalLocation(metalLocations);
 
-                    Direction dir = null;
-                    if (target != null) {
-                        dir = Pathfinding.getBasicBug(rc, target.location);
-                        if (rc.canMove(dir)) {
-                            rc.move(dir);
-                        }
-                    } else {
-                        dir = Pathfinding.getRandom(rc);
-                        if (rc.canMove(dir)) {
-                            rc.move(dir);
+                    if (rc.isActionReady()) {
+                        metalLocations = senseNearbyMetals(rc);
+                        target = findNearestMetalLocation(metalLocations);
+
+                        Direction dir = null;
+                        if (target != null) {
+                            dir = Pathfinding.getBasicBug(rc, target.location);
+                            if (rc.canMove(dir)) {
+                                rc.move(dir);
+                                rc.setIndicatorString("MOVINGTO");
+                            }
+                        } else {
+                            dir = Pathfinding.getRandom(rc);
+                            if (rc.canMove(dir)) {
+                                rc.move(dir);
+                                rc.setIndicatorString("MOVINGRAND");
+                            }
                         }
                     }
-
                 } else if (target.type.equals("GOLD")) {
 
                 }
@@ -51,6 +59,7 @@ public class Miner {
                 dir = Pathfinding.getBasicBug(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
+                    rc.setIndicatorString("MOVINGTO");
                 }
             }
         } else {
@@ -58,6 +67,7 @@ public class Miner {
             dir = Pathfinding.getRandom(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
+                rc.setIndicatorString("MOVINGRAND");
             }
         }
     }
