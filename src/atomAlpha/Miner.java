@@ -11,6 +11,28 @@ public class Miner {
         rc.setIndicatorString("");
         currentLoc = rc.getLocation();
 
+        Team opponent = rc.getTeam().opponent();
+        RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
+
+        if (nearbyRobots.length > 0) {
+            for (int i = 0; i < nearbyRobots.length; i++) {
+                RobotInfo robot = nearbyRobots[i];
+                if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.ARCHON
+                        && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
+                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                    }
+                } else if (robot.getTeam() == opponent && robot.getType() == RobotType.SOLDIER
+                        || robot.getType() == RobotType.SAGE) {
+                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                    }
+                }
+            }
+        }
+
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
 
         MetalLocation target = findNearestMetalLocation(metalLocations);

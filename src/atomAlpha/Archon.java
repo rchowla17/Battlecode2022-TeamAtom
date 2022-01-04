@@ -26,15 +26,16 @@ public class Archon {
             case SOLDIER:
                 if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
                     rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                    spawnOrderCounter++;
                 }
                 break;
             case MINER:
                 if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
                     rc.buildRobot(RobotType.MINER, spawnDir);
+                    spawnOrderCounter++;
                 }
                 break;
         }
-        spawnOrderCounter++;
     }
 
     //initial starting logic
