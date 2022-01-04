@@ -47,7 +47,7 @@ public class Pathfinding {
         }
     }
 
-    public static Direction getRandom(RobotController rc, MapLocation target) throws GameActionException {
+    public static Direction getRandom(RobotController rc) throws GameActionException {
         int random = (int) (Math.random() * 8);
         Direction dir = Data.directions[random];
 
