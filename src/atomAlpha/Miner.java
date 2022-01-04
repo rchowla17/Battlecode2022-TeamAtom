@@ -48,6 +48,7 @@ public class Miner {
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 rc.setIndicatorString("MOVINGRAND");
+                                Data.randCounter++;
                             }
                         }
                     }
@@ -68,6 +69,7 @@ public class Miner {
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 rc.setIndicatorString("MOVINGRAND");
+                Data.randCounter++;
             }
         }
     }

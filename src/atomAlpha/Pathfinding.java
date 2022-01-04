@@ -48,47 +48,56 @@ public class Pathfinding {
     }
 
     public static Direction getRandom(RobotController rc) throws GameActionException {
-        int random = (int) (Math.random() * 8);
-        Direction dir = Data.directions[random];
+        if (Data.randCounter == 0) {
+            int random = (int) (Math.random() * 8);
+            Direction dir = Data.directions[random];
 
-        if (dir == null) {
-            return Direction.CENTER;
-        } else if (rc.canMove(dir)) {
-            return dir;
-        } else {
-            Direction attemptDir = null;
-            Direction returnDirection = null;
-            for (int i = 1; i < 8; i++) {
-                switch (i) {
-                    case 1:
-                        attemptDir = dir.rotateRight();
-                        break;
-                    case 2:
-                        attemptDir = dir.rotateLeft();
-                        break;
-                    case 3:
-                        attemptDir = dir.rotateRight().rotateRight();
-                        break;
-                    case 4:
-                        attemptDir = dir.rotateLeft().rotateLeft();
-                        break;
-                    case 5:
-                        attemptDir = dir.opposite().rotateRight();
-                        break;
-                    case 6:
-                        attemptDir = dir.opposite().rotateLeft();
-                        break;
-                    case 7:
-                        attemptDir = dir.opposite();
-                        break;
-                    default:
-                        break;
+            if (dir == null) {
+                return Direction.CENTER;
+            } else if (rc.canMove(dir)) {
+                return dir;
+            } else {
+                Direction attemptDir = null;
+                Direction returnDirection = null;
+                for (int i = 1; i < 8; i++) {
+                    switch (i) {
+                        case 1:
+                            attemptDir = dir.rotateRight();
+                            break;
+                        case 2:
+                            attemptDir = dir.rotateLeft();
+                            break;
+                        case 3:
+                            attemptDir = dir.rotateRight().rotateRight();
+                            break;
+                        case 4:
+                            attemptDir = dir.rotateLeft().rotateLeft();
+                            break;
+                        case 5:
+                            attemptDir = dir.opposite().rotateRight();
+                            break;
+                        case 6:
+                            attemptDir = dir.opposite().rotateLeft();
+                            break;
+                        case 7:
+                            attemptDir = dir.opposite();
+                            break;
+                        default:
+                            break;
+                    }
+                    if (rc.canMove(attemptDir)) {
+                        returnDirection = attemptDir;
+                        Data.randDirection = returnDirection;
+                        return returnDirection;
+                    }
                 }
-                if (rc.canMove(attemptDir)) {
-                    returnDirection = attemptDir;
-                }
+                return Direction.CENTER;
             }
-            return returnDirection;
+        } else {
+            if (Data.randCounter <= 10) {
+                Data.randCounter = 0;
+            }
+            return Data.randDirection;
         }
     }
 }
