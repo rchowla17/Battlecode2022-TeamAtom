@@ -20,6 +20,7 @@ public strictfp class RobotPlayer {
             case WATCHTOWER:
                 break;
             case BUILDER:
+                Builder.init(rc);
                 break;
             case SAGE:
                 break;
@@ -42,6 +43,7 @@ public strictfp class RobotPlayer {
                     case WATCHTOWER:
                         break;
                     case BUILDER:
+                        Builder.runBuilder(rc);
                         break;
                     case SAGE:
                         break;

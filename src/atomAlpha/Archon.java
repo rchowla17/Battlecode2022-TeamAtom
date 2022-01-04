@@ -3,8 +3,6 @@ package atomAlpha;
 import battlecode.common.*;
 import java.util.*;
 
-import org.mockito.internal.matchers.StartsWith;
-
 public class Archon {
     static Queue<RobotType> startSpawnOrder = new LinkedList<RobotType>();
     static int startSpawn = 0;
