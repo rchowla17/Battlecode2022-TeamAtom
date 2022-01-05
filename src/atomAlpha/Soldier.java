@@ -24,7 +24,7 @@ public class Soldier {
                     Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
                 }
 
-                int enemyValue = determineEnemyValue(enemies[i]);
+                int enemyValue = Data.determineEnemyValue(enemies[i]);
                 if (enemyValue <= targetValue && enemies[i].health < targetHealth) {
                     target = enemies[i];
                     targetHealth = enemies[i].health;
@@ -51,7 +51,7 @@ public class Soldier {
                         Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
                     }
 
-                    int enemyValue = determineEnemyValue(enemies[i]);
+                    int enemyValue = Data.determineEnemyValue(enemies[i]);
                     int distanceToEnemy = rc.getLocation().distanceSquaredTo(enemies[i].getLocation());
                     if (enemyValue <= targetValue && distanceToEnemy < targetDistance) {
                         target = enemies[i];
@@ -74,25 +74,5 @@ public class Soldier {
                 }
             }
         }
-    }
-
-    static int determineEnemyValue(RobotInfo robot) {
-        switch (robot.getType()) {
-            case SAGE:
-                return 1;
-            case SOLDIER:
-                return 2;
-            case WATCHTOWER:
-                return 3;
-            case BUILDER:
-                return 4;
-            case ARCHON:
-                return 5;
-            case MINER:
-                return 6;
-            case LABORATORY:
-                return 7;
-        }
-        return 0;
     }
 }

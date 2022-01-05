@@ -118,6 +118,8 @@ public class Archon {
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.MINER);
     }
 
