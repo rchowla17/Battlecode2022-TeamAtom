@@ -27,8 +27,9 @@ public class Builder {
     }
 
     static void scout(RobotController rc) throws GameActionException {
-        if (rc.canMove(scoutDir)) {
-            rc.move(scoutDir);
+        Direction dir = Pathfinding.basicBug(rc, scoutDir);
+        if (rc.canMove(dir)) {
+            rc.move(dir);
         }
     }
 

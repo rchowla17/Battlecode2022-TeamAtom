@@ -59,13 +59,13 @@ public class Miner {
 
                         Direction dir = null;
                         if (target != null) {
-                            dir = Pathfinding.getBasicBug(rc, target.location);
+                            dir = Pathfinding.basicBug(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 rc.setIndicatorString("MOVINGTO");
                             }
                         } else {
-                            dir = Pathfinding.getRandom(rc);
+                            dir = Pathfinding.randomDir(rc);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 rc.setIndicatorString("MOVINGRAND");
@@ -90,13 +90,13 @@ public class Miner {
 
                         Direction dir = null;
                         if (target != null) {
-                            dir = Pathfinding.getBasicBug(rc, target.location);
+                            dir = Pathfinding.basicBug(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 rc.setIndicatorString("MOVINGTO");
                             }
                         } else {
-                            dir = Pathfinding.getRandom(rc);
+                            dir = Pathfinding.randomDir(rc);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 rc.setIndicatorString("MOVINGRAND");
@@ -107,7 +107,7 @@ public class Miner {
                 }
             } else {
                 Direction dir = null;
-                dir = Pathfinding.getBasicBug(rc, target.location);
+                dir = Pathfinding.basicBug(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     rc.setIndicatorString("MOVINGTO");
@@ -115,7 +115,7 @@ public class Miner {
             }
         } else {
             Direction dir = null;
-            dir = Pathfinding.getRandom(rc);
+            dir = Pathfinding.randomDir(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 rc.setIndicatorString("MOVINGRAND");

@@ -42,13 +42,13 @@ public class Soldier {
                     }
                 }
                 MapLocation toAttack = target.location;
-                Direction dir = Pathfinding.getBasicBug(rc, toAttack);
+                Direction dir = Pathfinding.basicBug(rc, toAttack);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
             } else {
                 Direction dir = null;
-                dir = Pathfinding.getRandom(rc);
+                dir = Pathfinding.randomDir(rc);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     rc.setIndicatorString("MOVINGRAND");

@@ -6,13 +6,13 @@ import java.util.*;
 public class Data {
     static final Direction[] directions = {
             Direction.NORTH,
-            Direction.NORTHEAST,
-            Direction.EAST,
-            Direction.SOUTHEAST,
-            Direction.SOUTH,
-            Direction.SOUTHWEST,
             Direction.WEST,
+            Direction.EAST,
+            Direction.SOUTH,
+            Direction.SOUTHEAST,
+            Direction.SOUTHWEST,
             Direction.NORTHWEST,
+            Direction.NORTHEAST,
     };
     static final Random rng = new Random(6147);
 
