@@ -109,31 +109,27 @@ public class Soldier {
 
     static int getClosestEnemyArcon(RobotController rc) throws GameActionException {
         int[] enemyArconLocations = Communication.getEnemyArconLocations(rc);
-        if (enemyArconLocations[0] == 0) {
-            return 0;
-        } else {
-            int closestArconLocation = 0;
-            int distanceSquaredToClosest = Integer.MAX_VALUE;
-            for (int i = 0; i < enemyArconLocations.length; i++) {
-                if (!(enemyArconLocations[i] == 0)) {
-                    String locationS = Integer.toString(enemyArconLocations[i]);
-                    int x = 0, y = 0;
-                    if (locationS.length() == 3) {
-                        x = Integer.parseInt(locationS.substring(0, 1));
-                        y = Integer.parseInt(locationS.substring(1));
-                    } else if (locationS.length() == 4) {
-                        x = Integer.parseInt(locationS.substring(0, 2));
-                        y = Integer.parseInt(locationS.substring(2));
-                    }
-                    MapLocation location = new MapLocation(x, y);
-                    if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
-                        closestArconLocation = enemyArconLocations[i];
-                        distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
-                    }
+        int closestArconLocation = 0;
+        int distanceSquaredToClosest = Integer.MAX_VALUE;
+        for (int i = 0; i < enemyArconLocations.length; i++) {
+            if (!(enemyArconLocations[i] == 0)) {
+                String locationS = Integer.toString(enemyArconLocations[i]);
+                int x = 0, y = 0;
+                if (locationS.length() == 3) {
+                    x = Integer.parseInt(locationS.substring(0, 1));
+                    y = Integer.parseInt(locationS.substring(1));
+                } else if (locationS.length() == 4) {
+                    x = Integer.parseInt(locationS.substring(0, 2));
+                    y = Integer.parseInt(locationS.substring(2));
+                }
+                MapLocation location = new MapLocation(x, y);
+                if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
+                    closestArconLocation = enemyArconLocations[i];
+                    distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
                 }
             }
-            return closestArconLocation;
         }
+        return closestArconLocation;
     }
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {

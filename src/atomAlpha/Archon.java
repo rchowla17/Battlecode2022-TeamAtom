@@ -11,7 +11,9 @@ public class Archon {
     static int spawnOrderCounter = 0;
 
     static void runArchon(RobotController rc) throws GameActionException {
-        int[] locations = Communication.getEnemyArconLocations(rc);
+        //int[] locations = Communication.getEnemyArconLocations(rc);
+        int[] locations = Communication.getMetalLocations(rc);
+
         String indicatorString = "";
 
         int random = (int) (Math.random() * 2);

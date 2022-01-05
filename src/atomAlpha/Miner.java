@@ -14,6 +14,18 @@ public class Miner {
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
         int nearbyMinerCount = 0;
 
+        //checks nearby possible metals and removes them if they are no longer there
+        int closestMetal = getClosestPossibleMetalLocation(rc);
+        MapLocation closestMetalLocation = null;
+        if (closestMetal != 0) {
+            closestMetalLocation = Communication.convertIntMapLocation(closestMetal);
+            if (rc.canSenseLocation(closestMetalLocation)) {
+                if (rc.senseRobotAtLocation(closestMetalLocation) == null) {
+                    Communication.removeMetalLocation(closestMetal, rc);
+                }
+            }
+        }
+
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
@@ -40,14 +52,14 @@ public class Miner {
             dir = Pathfinding.randomDir(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                rc.setIndicatorString("MOVINGRAND");
+                //rc.setIndicatorString("MOVINGRAND");
                 Data.randCounter++;
             }
         }
 
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
 
-        MetalLocation target = findNearestMetalLocation(metalLocations);
+        MetalLocation target = findNearestMetalLocation(metalLocations, rc);
         int distanceToTarget = -1;
         if (target != null) {
             distanceToTarget = currentLoc.distanceSquaredTo(target.location);
@@ -61,27 +73,27 @@ public class Miner {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                             while (rc.canMineLead(mineLocation)) {
                                 rc.mineLead(mineLocation);
-                                rc.setIndicatorString("MININGLEAD");
+                                //rc.setIndicatorString("MININGLEAD");
                             }
                         }
                     }
 
                     if (rc.isActionReady()) {
                         metalLocations = senseNearbyMetals(rc);
-                        target = findNearestMetalLocation(metalLocations);
+                        target = findNearestMetalLocation(metalLocations, rc);
 
                         Direction dir = null;
                         if (target != null) {
                             dir = Pathfinding.basicBug(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
-                                rc.setIndicatorString("MOVINGTO");
+                                //rc.setIndicatorString("MOVINGTO");
                             }
                         } else {
                             dir = Pathfinding.randomDir(rc);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
-                                rc.setIndicatorString("MOVINGRAND");
+                                //rc.setIndicatorString("MOVINGRAND");
                                 Data.randCounter++;
                             }
                         }
@@ -92,27 +104,27 @@ public class Miner {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                             while (rc.canMineGold(mineLocation)) {
                                 rc.mineGold(mineLocation);
-                                rc.setIndicatorString("MININGGOLD");
+                                //rc.setIndicatorString("MININGGOLD");
                             }
                         }
                     }
 
                     if (rc.isActionReady()) {
                         metalLocations = senseNearbyMetals(rc);
-                        target = findNearestMetalLocation(metalLocations);
+                        target = findNearestMetalLocation(metalLocations, rc);
 
                         Direction dir = null;
                         if (target != null) {
                             dir = Pathfinding.basicBug(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
-                                rc.setIndicatorString("MOVINGTO");
+                                //rc.setIndicatorString("MOVINGTO");
                             }
                         } else {
                             dir = Pathfinding.randomDir(rc);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
-                                rc.setIndicatorString("MOVINGRAND");
+                                //rc.setIndicatorString("MOVINGRAND");
                                 Data.randCounter++;
                             }
                         }
@@ -123,16 +135,23 @@ public class Miner {
                 dir = Pathfinding.basicBug(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
-                    rc.setIndicatorString("MOVINGTO");
+                    //rc.setIndicatorString("MOVINGTO");
                 }
             }
         } else {
             Direction dir = null;
-            dir = Pathfinding.randomDir(rc);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                rc.setIndicatorString("MOVINGRAND");
-                Data.randCounter++;
+            if (closestMetal != 0) {
+                dir = Pathfinding.basicBug(rc, closestMetalLocation);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            }else{
+                dir = Pathfinding.randomDir(rc);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                    //rc.setIndicatorString("MOVINGRAND");
+                    Data.randCounter++;
+                }
             }
         }
     }
@@ -157,7 +176,7 @@ public class Miner {
         return metalLocations;
     }
 
-    static MetalLocation findNearestMetalLocation(ArrayList<MetalLocation> metalLocations) {
+    static MetalLocation findNearestMetalLocation(ArrayList<MetalLocation> metalLocations, RobotController rc) throws GameActionException{
         MetalLocation target = null;
         int distanceToTarget = Integer.MAX_VALUE;
         boolean foundGold = false;
@@ -183,7 +202,31 @@ public class Miner {
                 distanceToTarget = distanceToLoc;
             }
         }
+        
+        if(target != null){
+            //rc.setIndicatorString("ADDING");
+            String x = String.format("%02d", target.location.x);
+            String y = String.format("%02d", target.location.y);
+            String locationS = x + y;
+            Communication.addMetalLocation(rc, Integer.parseInt(locationS));
+        }
 
         return target;
+    }
+
+    static int getClosestPossibleMetalLocation(RobotController rc) throws GameActionException {
+        int[] metalLocations = Communication.getMetalLocations(rc);
+        int closestMetalLocation = 0;
+        int distanceSquaredToClosest = Integer.MAX_VALUE;
+        for (int i = 0; i < metalLocations.length; i++) {
+            if (!(metalLocations[i] == 0)) {
+                MapLocation location = Communication.convertIntMapLocation(metalLocations[i]);
+                if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
+                    closestMetalLocation = metalLocations[i];
+                    distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
+                }
+            }
+        }
+        return closestMetalLocation;
     }
 }
