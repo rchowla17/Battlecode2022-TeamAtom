@@ -18,19 +18,19 @@ public class Pathfinding {
                         attemptDir = dir.rotateRight();
                         break;
                     case 2:
-                        attemptDir = dir.rotateLeft();
-                        break;
-                    case 3:
                         attemptDir = dir.rotateRight().rotateRight();
                         break;
+                    case 3:
+                        attemptDir = dir.rotateRight().rotateRight().rotateRight();
+                        break;
                     case 4:
-                        attemptDir = dir.rotateLeft().rotateLeft();
+                        attemptDir = dir.rotateLeft();
                         break;
                     case 5:
-                        attemptDir = dir.opposite().rotateRight();
+                        attemptDir = dir.rotateLeft().rotateLeft();
                         break;
                     case 6:
-                        attemptDir = dir.opposite().rotateLeft();
+                        attemptDir = dir.rotateLeft().rotateLeft().rotateLeft();
                         break;
                     case 7:
                         attemptDir = dir.opposite();
@@ -59,19 +59,19 @@ public class Pathfinding {
                         attemptDir = dir.rotateRight();
                         break;
                     case 2:
-                        attemptDir = dir.rotateLeft();
-                        break;
-                    case 3:
                         attemptDir = dir.rotateRight().rotateRight();
                         break;
+                    case 3:
+                        attemptDir = dir.rotateRight().rotateRight().rotateRight();
+                        break;
                     case 4:
-                        attemptDir = dir.rotateLeft().rotateLeft();
+                        attemptDir = dir.rotateLeft();
                         break;
                     case 5:
-                        attemptDir = dir.opposite().rotateRight();
+                        attemptDir = dir.rotateLeft().rotateLeft();
                         break;
                     case 6:
-                        attemptDir = dir.opposite().rotateLeft();
+                        attemptDir = dir.rotateLeft().rotateLeft().rotateLeft();
                         break;
                     case 7:
                         attemptDir = dir.opposite();

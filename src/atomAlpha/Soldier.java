@@ -139,7 +139,8 @@ public class Soldier {
     }
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
-        if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
+        if (!(rc.getLocation().distanceSquaredTo(location) <= 2)
+                && !(rc.getLocation().distanceSquaredTo(location) > 10)) {
             Direction dir = Pathfinding.basicBug(rc, location);
             if (rc.canMove(dir)) {
                 rc.move(dir);
