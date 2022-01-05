@@ -27,9 +27,8 @@ public class Soldier {
                 y = Integer.parseInt(locationS.substring(2));
             }
             closestEnemyArconLocation = new MapLocation(x, y);
-
             if (rc.canSenseLocation(closestEnemyArconLocation)) {
-                if (rc.senseRobotAtLocation(closestEnemyArconLocation).equals(null)) {
+                if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
                     Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
                 }
             }
@@ -116,9 +115,7 @@ public class Soldier {
             int closestArconLocation = 0;
             int distanceSquaredToClosest = Integer.MAX_VALUE;
             for (int i = 0; i < enemyArconLocations.length; i++) {
-                if (enemyArconLocations[i] == 0) {
-                    break;
-                } else {
+                if (!(enemyArconLocations[i] == 0)) {
                     String locationS = Integer.toString(enemyArconLocations[i]);
                     int x = 0, y = 0;
                     if (locationS.length() == 3) {
