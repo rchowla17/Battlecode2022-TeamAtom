@@ -13,6 +13,10 @@ public class Archon {
     static void runArchon(RobotController rc) throws GameActionException {
         int[] locations = Communication.getEnemyArconLocations(rc);
         String indicatorString = "";
+
+        int random = (int) (Math.random() * 2);
+        rc.writeSharedArray(62, random);
+
         for (int i = 0; i < locations.length; i++) {
             indicatorString += locations[i] + ",";
         }

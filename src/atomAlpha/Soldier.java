@@ -27,10 +27,11 @@ public class Soldier {
                 y = Integer.parseInt(locationS.substring(2));
             }
             closestEnemyArconLocation = new MapLocation(x, y);
-        }
-        if (rc.canSenseLocation(closestEnemyArconLocation)) {
-            if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
-                Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
+
+            if (rc.canSenseLocation(closestEnemyArconLocation)) {
+                if (rc.senseRobotAtLocation(closestEnemyArconLocation).equals(null)) {
+                    Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
+                }
             }
         }
 
@@ -42,7 +43,7 @@ public class Soldier {
                     String x = String.format("%02d", enemy.getLocation().x);
                     String y = String.format("%02d", enemy.getLocation().y);
                     String locationS = x + y;
-                    rc.setIndicatorString(locationS);
+                    //rc.setIndicatorString(locationS);
                     Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
                     swarmArcon(rc, enemy.getLocation());
                 }
@@ -70,7 +71,7 @@ public class Soldier {
                         String x = String.format("%02d", enemy.getLocation().x);
                         String y = String.format("%02d", enemy.getLocation().y);
                         String locationS = x + y;
-                        rc.setIndicatorString(locationS);
+                        //rc.setIndicatorString(locationS);
                         Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
                     }
 
@@ -89,17 +90,17 @@ public class Soldier {
                 }
             } else {
                 Direction dir = null;
-                if (attacker && !closestEnemyArconLocation.equals(null)) {
+                if (attacker && closestEnemyArcon != 0) {
                     dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
-                        rc.setIndicatorString("MOVINGTOARCON");
+                        //rc.setIndicatorString("MOVINGTOARCON");
                     }
                 } else {
                     dir = Pathfinding.randomDir(rc);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
-                        rc.setIndicatorString("MOVINGRAND");
+                        //rc.setIndicatorString("MOVINGRAND");
                         Data.randCounter++;
                     }
                 }
@@ -139,8 +140,7 @@ public class Soldier {
     }
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
-        if (!(rc.getLocation().distanceSquaredTo(location) <= 2)
-                && !(rc.getLocation().distanceSquaredTo(location) > 10)) {
+        if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
             Direction dir = Pathfinding.basicBug(rc, location);
             if (rc.canMove(dir)) {
                 rc.move(dir);
@@ -148,9 +148,9 @@ public class Soldier {
         }
     }
 
-    static void init(RobotController rc) {
-        int random = (int) (Math.random() * 3);
-        if (random == 0) {
+    static void init(RobotController rc) throws GameActionException {
+        int rand = rc.readSharedArray(62);
+        if (rand == 0) {
             attacker = true;
         }
         RobotInfo[] robots = rc.senseNearbyRobots();
