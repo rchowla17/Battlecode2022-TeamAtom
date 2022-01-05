@@ -135,7 +135,8 @@ public class Pathfinding {
 
     public static Direction randomDir(RobotController rc) throws GameActionException {
         if (Data.randCounter == 0) {
-            int random = (int) (Math.random() * 8);
+            //int random = (int) (Math.random() * 8);
+            int random = rc.readSharedArray(61);
             Direction dir = Data.directions[random];
 
             if (dir.equals(null)) {
@@ -180,7 +181,9 @@ public class Pathfinding {
                 return Direction.CENTER;
             }
         } else {
-            if (Data.randCounter <= 10) {
+            if (Data.randCounter < 8) {
+                Data.randCounter++;
+            }else{
                 Data.randCounter = 0;
             }
             return Data.randDirection;

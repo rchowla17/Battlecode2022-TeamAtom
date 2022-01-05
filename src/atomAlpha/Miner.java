@@ -5,6 +5,8 @@ import java.util.*;
 
 public class Miner {
     static MapLocation currentLoc;
+    static int randomMoves = 0;
+    static boolean goRand = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         rc.setIndicatorString("");
@@ -20,7 +22,7 @@ public class Miner {
         if (closestMetal != 0) {
             closestMetalLocation = Communication.convertIntMapLocation(closestMetal);
             if (rc.canSenseLocation(closestMetalLocation)) {
-                if (rc.senseRobotAtLocation(closestMetalLocation) == null) {
+                if (rc.senseLead(closestMetalLocation) < 15) {
                     Communication.removeMetalLocation(closestMetal, rc);
                 }
             }
@@ -57,6 +59,21 @@ public class Miner {
             }
         }
 
+        if(goRand){
+            Direction dir = Pathfinding.randomDir(rc);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                //rc.setIndicatorString("MOVINGRAND");
+                Data.randCounter++;
+                randomMoves++;
+            }
+
+            if(randomMoves >= 10){
+                randomMoves = 0;
+                goRand = false;
+            }
+        }
+
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
 
         MetalLocation target = findNearestMetalLocation(metalLocations, rc);
@@ -68,10 +85,14 @@ public class Miner {
         if (distanceToTarget != -1) {
             if (distanceToTarget <= 2) {
                 if (target.type.equals("LEAD")) {
+                    if(rc.senseLead(target.location)<=3){
+                        goRand = true;
+                    }
+
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
-                            while (rc.canMineLead(mineLocation)) {
+                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation)>3) {
                                 rc.mineLead(mineLocation);
                                 //rc.setIndicatorString("MININGLEAD");
                             }
@@ -204,7 +225,6 @@ public class Miner {
         }
         
         if(target != null){
-            //rc.setIndicatorString("ADDING");
             String x = String.format("%02d", target.location.x);
             String y = String.format("%02d", target.location.y);
             String locationS = x + y;
@@ -218,6 +238,19 @@ public class Miner {
         int[] metalLocations = Communication.getMetalLocations(rc);
         int closestMetalLocation = 0;
         int distanceSquaredToClosest = Integer.MAX_VALUE;
+
+        /*int nearbyMinerCount = 0;
+        RobotInfo[] robots = rc.senseNearbyRobots(rc.getLocation(), rc.getType().visionRadiusSquared, rc.getTeam());
+        for(int i = 0; i<robots.length; i++){
+            if(robots[i].getType().equals(RobotType.MINER)){
+                nearbyMinerCount++;
+            }
+        }
+
+        if(nearbyMinerCount>metalLocations.length){
+            return -1;
+        }*/
+
         for (int i = 0; i < metalLocations.length; i++) {
             if (!(metalLocations[i] == 0)) {
                 MapLocation location = Communication.convertIntMapLocation(metalLocations[i]);

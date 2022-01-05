@@ -18,6 +18,8 @@ public class Archon {
 
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
+        random = (int) (Math.random()*8);
+        rc.writeSharedArray(61, random);
 
         for (int i = 0; i < locations.length; i++) {
             indicatorString += locations[i] + ",";
