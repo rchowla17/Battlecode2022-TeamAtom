@@ -75,4 +75,14 @@ public class Soldier {
             }
         }
     }
+
+    static void init(RobotController rc) {
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for (int i = 0; i < robots.length; i++) {
+            RobotInfo robot = robots[i];
+            if (robot.getTeam().equals(rc.getTeam()) && rc.getType().equals(RobotType.ARCHON)) {
+                Data.spawnBaseLocation = robot.getLocation();
+            }
+        }
+    }
 }

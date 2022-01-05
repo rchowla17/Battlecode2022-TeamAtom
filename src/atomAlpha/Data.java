@@ -18,6 +18,7 @@ public class Data {
 
     static int randCounter = 0;
     static Direction randDirection = Direction.CENTER;
+    static MapLocation spawnBaseLocation = null;
 
     static int determineEnemyValue(RobotInfo robot) {
         switch (robot.getType()) {
