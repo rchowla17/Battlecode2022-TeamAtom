@@ -27,9 +27,23 @@ public class Builder {
     }
 
     static void scout(RobotController rc) throws GameActionException {
-        Direction dir = Pathfinding.basicBug(rc, scoutDir);
+        Direction dir = Pathfinding.scoutBug(rc, scoutDir);
         if (rc.canMove(dir)) {
             rc.move(dir);
+        }
+
+        int actionRadius = rc.getType().actionRadiusSquared;
+        Team opponent = rc.getTeam().opponent();
+        RobotInfo[] enemies = rc.senseNearbyRobots(actionRadius, opponent);
+        for (int i = 0; i < enemies.length; i++) {
+            RobotInfo enemy = enemies[i];
+            if (enemy.getType().equals(RobotType.ARCHON)) {
+                String x = String.format("%02d", enemy.getLocation().x);
+                String y = String.format("%02d", enemy.getLocation().y);
+                String locationS = x + y;
+                rc.setIndicatorString(locationS);
+                Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+            }
         }
     }
 

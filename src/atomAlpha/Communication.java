@@ -11,4 +11,24 @@ public class Communication {
     static void setCommArrayIndexToZero(RobotController rc, int index) throws GameActionException {
         rc.writeSharedArray(index, 0);
     }
+
+    static void addEnemyArconLocation(int location, RobotController rc) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(0), rc.readSharedArray(1), rc.readSharedArray(2),
+                rc.readSharedArray(3) };
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i] == location) {
+                break;
+            }
+            if (locations[i] == 0) {
+                rc.writeSharedArray(i, location);
+                break;
+            }
+        }
+    }
+
+    static int[] getEnemyArconLocations(RobotController rc) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(0), rc.readSharedArray(1), rc.readSharedArray(2),
+                rc.readSharedArray(3) };
+        return locations;
+    }
 }

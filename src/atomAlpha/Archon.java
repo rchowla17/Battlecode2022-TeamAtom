@@ -11,6 +11,13 @@ public class Archon {
     static int spawnOrderCounter = 0;
 
     static void runArchon(RobotController rc) throws GameActionException {
+        int[] locations = Communication.getEnemyArconLocations(rc);
+        String indicatorString = "";
+        for (int i = 0; i < locations.length; i++) {
+            indicatorString += locations[i] + ",";
+        }
+        rc.setIndicatorString(indicatorString);
+
         while (startSpawn <= 9) {
             gameStartSequence(rc);
         }
