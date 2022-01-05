@@ -4,8 +4,9 @@ import battlecode.common.*;
 import java.util.*;
 
 public class Soldier {
+    static boolean attacker = false;
+
     static void runSoldier(RobotController rc) throws GameActionException {
-        // Try to attack someone
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(actionRadius, opponent);
@@ -13,6 +14,27 @@ public class Soldier {
         int targetHealth = Integer.MAX_VALUE;
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
+        int closestEnemyArcon = getClosestEnemyArcon(rc);
+        MapLocation closestEnemyArconLocation = null;
+        if (closestEnemyArcon != 0) {
+            String locationS = Integer.toString(closestEnemyArcon);
+            int x = 0, y = 0;
+            if (locationS.length() == 3) {
+                x = Integer.parseInt(locationS.substring(0, 1));
+                y = Integer.parseInt(locationS.substring(1));
+            } else if (locationS.length() == 4) {
+                x = Integer.parseInt(locationS.substring(0, 2));
+                y = Integer.parseInt(locationS.substring(2));
+            }
+            closestEnemyArconLocation = new MapLocation(x, y);
+        }
+        if (rc.canSenseLocation(closestEnemyArconLocation)) {
+            if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
+                Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
+            }
+        }
+
+        // Try to attack someone
         if (enemies.length > 0) {
             for (int i = 0; i < enemies.length; i++) {
                 RobotInfo enemy = enemies[i];
@@ -66,17 +88,60 @@ public class Soldier {
                 }
             } else {
                 Direction dir = null;
-                dir = Pathfinding.randomDir(rc);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                    rc.setIndicatorString("MOVINGRAND");
-                    Data.randCounter++;
+                if (attacker && !closestEnemyArconLocation.equals(null)) {
+                    dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                        rc.setIndicatorString("MOVINGTOARCON");
+                    }
+                } else {
+                    dir = Pathfinding.randomDir(rc);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                        rc.setIndicatorString("MOVINGRAND");
+                        Data.randCounter++;
+                    }
                 }
             }
         }
     }
 
+    static int getClosestEnemyArcon(RobotController rc) throws GameActionException {
+        int[] enemyArconLocations = Communication.getEnemyArconLocations(rc);
+        if (enemyArconLocations[0] == 0) {
+            return 0;
+        } else {
+            int closestArconLocation = 0;
+            int distanceSquaredToClosest = Integer.MAX_VALUE;
+            for (int i = 0; i < enemyArconLocations.length; i++) {
+                if (enemyArconLocations[i] == 0) {
+                    break;
+                } else {
+                    String locationS = Integer.toString(enemyArconLocations[i]);
+                    int x = 0, y = 0;
+                    if (locationS.length() == 3) {
+                        x = Integer.parseInt(locationS.substring(0, 1));
+                        y = Integer.parseInt(locationS.substring(1));
+                    } else if (locationS.length() == 4) {
+                        x = Integer.parseInt(locationS.substring(0, 2));
+                        y = Integer.parseInt(locationS.substring(2));
+                    }
+                    MapLocation location = new MapLocation(x, y);
+                    if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
+                        closestArconLocation = enemyArconLocations[i];
+                        distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
+                    }
+                }
+            }
+            return closestArconLocation;
+        }
+    }
+
     static void init(RobotController rc) {
+        int random = (int) (Math.random() * 3);
+        if (random == 0) {
+            attacker = true;
+        }
         RobotInfo[] robots = rc.senseNearbyRobots();
         for (int i = 0; i < robots.length; i++) {
             RobotInfo robot = robots[i];

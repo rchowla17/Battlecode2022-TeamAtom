@@ -26,6 +26,16 @@ public class Communication {
         }
     }
 
+    static void removeEnemyArconLocation(int location, RobotController rc) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(0), rc.readSharedArray(1), rc.readSharedArray(2),
+                rc.readSharedArray(3) };
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i] == location) {
+                setCommArrayIndexToZero(rc, i);
+            }
+        }
+    }
+
     static int[] getEnemyArconLocations(RobotController rc) throws GameActionException {
         int[] locations = new int[] { rc.readSharedArray(0), rc.readSharedArray(1), rc.readSharedArray(2),
                 rc.readSharedArray(3) };
