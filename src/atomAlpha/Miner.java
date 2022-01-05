@@ -12,23 +12,36 @@ public class Miner {
 
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
+        int nearbyMinerCount = 0;
 
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
-                if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.ARCHON
+                if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
-                } else if (robot.getTeam() == opponent && robot.getType() == RobotType.SOLDIER
-                        || robot.getType() == RobotType.SAGE) {
+                } else if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
+                    nearbyMinerCount++;
+                } else if (robot.getTeam().equals(opponent) && robot.getType().equals(RobotType.SOLDIER)
+                        || robot.getType().equals(RobotType.SAGE)) {
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
                 }
+            }
+        }
+
+        if (nearbyMinerCount > 8) {
+            Direction dir = null;
+            dir = Pathfinding.randomDir(rc);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                rc.setIndicatorString("MOVINGRAND");
+                Data.randCounter++;
             }
         }
 

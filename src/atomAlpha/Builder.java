@@ -18,7 +18,7 @@ public class Builder {
     static void init(RobotController rc) throws GameActionException {
         if (rc.canSenseRadiusSquared(3)) {
             for (RobotInfo robot : rc.senseNearbyRobots(3, rc.getTeam())) {
-                if (robot.getType() == RobotType.ARCHON) {
+                if (robot.getType().equals(RobotType.ARCHON)) {
                     scoutDir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     checkIfScout(rc);
                 }
@@ -48,8 +48,8 @@ public class Builder {
     }
 
     static void checkIfScout(RobotController rc) throws GameActionException {
-        if (scoutDir == Direction.NORTH || scoutDir == Direction.WEST || scoutDir == Direction.EAST
-                || scoutDir == Direction.SOUTH) {
+        if (scoutDir.equals(Direction.NORTH) || scoutDir.equals(Direction.WEST) || scoutDir.equals(Direction.EAST)
+                || scoutDir.equals(Direction.SOUTH)) {
             isScout = true;
         }
     }

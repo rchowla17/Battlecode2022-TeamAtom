@@ -15,6 +15,15 @@ public class Soldier {
 
         if (enemies.length > 0) {
             for (int i = 0; i < enemies.length; i++) {
+                RobotInfo enemy = enemies[i];
+                if (enemy.getType().equals(RobotType.ARCHON)) {
+                    String x = String.format("%02d", enemy.getLocation().x);
+                    String y = String.format("%02d", enemy.getLocation().y);
+                    String locationS = x + y;
+                    rc.setIndicatorString(locationS);
+                    Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+                }
+
                 int enemyValue = determineEnemyValue(enemies[i]);
                 if (enemyValue <= targetValue && enemies[i].health < targetHealth) {
                     target = enemies[i];
@@ -33,6 +42,15 @@ public class Soldier {
 
             if (enemies.length > 0) {
                 for (int i = 0; i < enemies.length; i++) {
+                    RobotInfo enemy = enemies[i];
+                    if (enemy.getType().equals(RobotType.ARCHON)) {
+                        String x = String.format("%02d", enemy.getLocation().x);
+                        String y = String.format("%02d", enemy.getLocation().y);
+                        String locationS = x + y;
+                        rc.setIndicatorString(locationS);
+                        Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+                    }
+
                     int enemyValue = determineEnemyValue(enemies[i]);
                     int distanceToEnemy = rc.getLocation().distanceSquaredTo(enemies[i].getLocation());
                     if (enemyValue <= targetValue && distanceToEnemy < targetDistance) {

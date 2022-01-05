@@ -6,7 +6,7 @@ import java.util.*;
 public class Pathfinding {
     public static Direction basicBug(RobotController rc, MapLocation target) throws GameActionException {
         Direction dir = rc.getLocation().directionTo(target);
-        if (dir == null) {
+        if (dir.equals(null)) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -47,7 +47,7 @@ public class Pathfinding {
     }
 
     public static Direction basicBug(RobotController rc, Direction dir) throws GameActionException {
-        if (dir == null) {
+        if (dir.equals(null)) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -88,7 +88,7 @@ public class Pathfinding {
     }
 
     public static Direction scoutBug(RobotController rc, Direction dir) throws GameActionException {
-        if (dir == null) {
+        if (dir.equals(null)) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -138,7 +138,7 @@ public class Pathfinding {
             int random = (int) (Math.random() * 8);
             Direction dir = Data.directions[random];
 
-            if (dir == null) {
+            if (dir.equals(null)) {
                 return Direction.CENTER;
             } else if (rc.canMove(dir)) {
                 return dir;
