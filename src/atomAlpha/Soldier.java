@@ -44,6 +44,7 @@ public class Soldier {
                     String locationS = x + y;
                     rc.setIndicatorString(locationS);
                     Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+                    swarmArcon(rc, enemy.getLocation());
                 }
 
                 int enemyValue = Data.determineEnemyValue(enemies[i]);
@@ -134,6 +135,15 @@ public class Soldier {
                 }
             }
             return closestArconLocation;
+        }
+    }
+
+    static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
+        if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
+            Direction dir = Pathfinding.basicBug(rc, location);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+            }
         }
     }
 
