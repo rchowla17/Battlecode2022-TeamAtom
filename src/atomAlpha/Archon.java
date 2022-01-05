@@ -15,6 +15,7 @@ public class Archon {
             gameStartSequence(rc);
         }
 
+        Communication.setCommArrayIndexToZero(rc, 63);
         normalSpawnSequence(rc);
     }
 
