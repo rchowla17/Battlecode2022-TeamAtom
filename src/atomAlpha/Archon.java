@@ -4,33 +4,33 @@ import battlecode.common.*;
 import java.util.*;
 
 public class Archon {
-    static Queue<RobotType> startSpawnOrder = new LinkedList<RobotType>();
-    static int startSpawn = 0;
+    static int startSpawn = 0; //counter for initial spawn order
 
     static ArrayList<RobotType> spawnOrder = new ArrayList<RobotType>();
     static int spawnOrderCounter = 0;
 
     static void runArchon(RobotController rc) throws GameActionException {
-        //int[] locations = Communication.getEnemyArconLocations(rc);
+        /*int[] locations = Communication.getEnemyArconLocations(rc);
         int[] locations = Communication.getMetalLocations(rc);
 
         String indicatorString = "";
 
+        for (int i = 0; i < locations.length; i++) {
+            indicatorString += locations[i] + ",";
+        }
+        rc.setIndicatorString(indicatorString);*/
+
+        //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
         random = (int) (Math.random()*8);
         rc.writeSharedArray(61, random);
 
-        for (int i = 0; i < locations.length; i++) {
-            indicatorString += locations[i] + ",";
-        }
-        rc.setIndicatorString(indicatorString);
-
+        //initial spawn logic
         while (startSpawn <= 9) {
             gameStartSequence(rc);
         }
 
-        Communication.setCommArrayIndexToZero(rc, 63);
         normalSpawnSequence(rc);
     }
 

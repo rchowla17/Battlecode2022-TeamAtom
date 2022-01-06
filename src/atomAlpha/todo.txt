@@ -2,3 +2,5 @@ enemy base prediction
 unit counter
     miner/soldier unit count balance
 pathfinding
+better soldier movement
+    flock towards areas where there are a lot of enemy soldiers

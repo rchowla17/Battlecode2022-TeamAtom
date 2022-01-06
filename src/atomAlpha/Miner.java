@@ -31,6 +31,7 @@ public class Miner {
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
+                //stops unit from blocking spawn zone
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
@@ -38,9 +39,10 @@ public class Miner {
                         rc.move(dir);
                     }
                 } else if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
-                    nearbyMinerCount++;
+                    nearbyMinerCount++; //nearby miner counter
                 } else if (robot.getTeam().equals(opponent) && robot.getType().equals(RobotType.SOLDIER)
                         || robot.getType().equals(RobotType.SAGE)) {
+                    //run from enemy attackers
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     if (rc.canMove(dir)) {
                         rc.move(dir);
@@ -49,6 +51,7 @@ public class Miner {
             }
         }
 
+        //tries to stop miners from flocking
         if (nearbyMinerCount > 8) {
             Direction dir = null;
             dir = Pathfinding.randomDir(rc);
@@ -59,6 +62,7 @@ public class Miner {
             }
         }
 
+        //logic for miners to spread out after finishing mining out a location
         if(goRand){
             Direction dir = Pathfinding.randomDir(rc);
             if (rc.canMove(dir)) {
@@ -83,12 +87,14 @@ public class Miner {
         }
 
         if (distanceToTarget != -1) {
+            //if target is within mining distance
             if (distanceToTarget <= 2) {
                 if (target.type.equals("LEAD")) {
                     if(rc.senseLead(target.location)<=3){
                         goRand = true;
                     }
 
+                    //continously mines possible areas
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
@@ -99,18 +105,21 @@ public class Miner {
                         }
                     }
 
+                    //if there is cooldown left after mining, the unit will try to move to another target
                     if (rc.isActionReady()) {
                         metalLocations = senseNearbyMetals(rc);
                         target = findNearestMetalLocation(metalLocations, rc);
 
                         Direction dir = null;
                         if (target != null) {
+                            //move towards target
                             dir = Pathfinding.basicBug(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 //rc.setIndicatorString("MOVINGTO");
                             }
                         } else {
+                            //random movement since there is no found target
                             dir = Pathfinding.randomDir(rc);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
@@ -238,18 +247,6 @@ public class Miner {
         int[] metalLocations = Communication.getMetalLocations(rc);
         int closestMetalLocation = 0;
         int distanceSquaredToClosest = Integer.MAX_VALUE;
-
-        /*int nearbyMinerCount = 0;
-        RobotInfo[] robots = rc.senseNearbyRobots(rc.getLocation(), rc.getType().visionRadiusSquared, rc.getTeam());
-        for(int i = 0; i<robots.length; i++){
-            if(robots[i].getType().equals(RobotType.MINER)){
-                nearbyMinerCount++;
-            }
-        }
-
-        if(nearbyMinerCount>metalLocations.length){
-            return -1;
-        }*/
 
         for (int i = 0; i < metalLocations.length; i++) {
             if (!(metalLocations[i] == 0)) {
