@@ -124,10 +124,6 @@ public class Archon {
     public static void init() {
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.MINER);
     }
 
