@@ -26,6 +26,9 @@ public class Archon {
         random = (int) (Math.random() * 8);
         rc.writeSharedArray(61, random);
 
+        //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
+        UnitCounter.reset(rc);
+
         //initial spawn logic
         while (startSpawn <= 7) {
             gameStartSequence(rc);

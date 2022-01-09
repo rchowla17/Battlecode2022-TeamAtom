@@ -16,6 +16,8 @@ public class Miner {
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
         int nearbyMinerCount = 0;
 
+        UnitCounter.addMiner(rc);
+
         //checks nearby possible metals and removes them if they are no longer there
         int closestMetal = getClosestPossibleMetalLocation(rc);
         MapLocation closestMetalLocation = null;
@@ -63,7 +65,7 @@ public class Miner {
         }
 
         //logic for miners to spread out after finishing mining out a location
-        if(goRand){
+        if (goRand) {
             Direction dir = Pathfinding.randomDir(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
@@ -72,7 +74,7 @@ public class Miner {
                 randomMoves++;
             }
 
-            if(randomMoves >= 10){
+            if (randomMoves >= 10) {
                 randomMoves = 0;
                 goRand = false;
             }
@@ -90,7 +92,7 @@ public class Miner {
             //if target is within mining distance
             if (distanceToTarget <= 2) {
                 if (target.type.equals("LEAD")) {
-                    if(rc.senseLead(target.location)<=3){
+                    if (rc.senseLead(target.location) <= 3) {
                         goRand = true;
                     }
 
@@ -98,7 +100,7 @@ public class Miner {
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dy = -1; dy <= 1; dy++) {
                             MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
-                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation)>3) {
+                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 3) {
                                 rc.mineLead(mineLocation);
                                 //rc.setIndicatorString("MININGLEAD");
                             }
@@ -175,7 +177,7 @@ public class Miner {
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
-            }else{
+            } else {
                 dir = Pathfinding.randomDir(rc);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
@@ -206,7 +208,8 @@ public class Miner {
         return metalLocations;
     }
 
-    static MetalLocation findNearestMetalLocation(ArrayList<MetalLocation> metalLocations, RobotController rc) throws GameActionException{
+    static MetalLocation findNearestMetalLocation(ArrayList<MetalLocation> metalLocations, RobotController rc)
+            throws GameActionException {
         MetalLocation target = null;
         int distanceToTarget = Integer.MAX_VALUE;
         boolean foundGold = false;
@@ -232,8 +235,8 @@ public class Miner {
                 distanceToTarget = distanceToLoc;
             }
         }
-        
-        if(target != null){
+
+        if (target != null) {
             String x = String.format("%02d", target.location.x);
             String y = String.format("%02d", target.location.y);
             String locationS = x + y;

@@ -14,6 +14,8 @@ public class Soldier {
         int targetHealth = Integer.MAX_VALUE;
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
+        UnitCounter.addSoldier(rc);
+
         int closestEnemyArcon = getClosestEnemyArcon(rc);
         MapLocation closestEnemyArconLocation = null;
         if (closestEnemyArcon != 0) {

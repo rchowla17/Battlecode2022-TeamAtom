@@ -1,8 +1,11 @@
 enemy base prediction
-unit counter
-    miner/soldier unit count balance based on
-        round number, resource availibility, income gain per round
+
+miner/soldier unit count balance based on
+    round number, resource availibility, income gain per round
+
 pathfinding
+
 better soldier movement
     flock towards areas where there are a lot of enemy soldiers
+
 take into account multiple enemies when running away - miner class 46
