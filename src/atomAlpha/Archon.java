@@ -8,7 +8,11 @@ public class Archon {
 
     static ArrayList<RobotType> spawnOrder = new ArrayList<RobotType>();
     static int spawnOrderCounter = 0;
-
+    /* Archon Logic:
+        First 9 things build will be miners in each of the different directions
+        After that, every time we run Archon, we will alternate building Miners and Soldiers
+        in the first available direction
+    */
     static void runArchon(RobotController rc) throws GameActionException {
         /*int[] locations = Communication.getEnemyArconLocations(rc);
         int[] locations = Communication.getMetalLocations(rc);
