@@ -7,6 +7,7 @@ public class Builder {
     static boolean isScout = false;
     static Direction scoutDir = null;
 
+    //only being used to find enemy archons rn?
     static void runBuilder(RobotController rc) throws GameActionException {
         if (isScout) {
             scout(rc);

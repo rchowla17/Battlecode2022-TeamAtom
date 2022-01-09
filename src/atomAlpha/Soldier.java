@@ -146,7 +146,7 @@ public class Soldier {
         if (rand == 0) {
             attacker = true;
         }
-        RobotInfo[] robots = rc.senseNearbyRobots();
+        RobotInfo[] robots = rc.senseNearbyRobots(); //100 bytecodes
         for (int i = 0; i < robots.length; i++) {
             RobotInfo robot = robots[i];
             if (robot.getTeam().equals(rc.getTeam()) && rc.getType().equals(RobotType.ARCHON)) {
