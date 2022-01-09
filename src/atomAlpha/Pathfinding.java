@@ -183,7 +183,7 @@ public class Pathfinding {
         } else {
             if (Data.randCounter < 8) {
                 Data.randCounter++;
-            }else{
+            } else {
                 Data.randCounter = 0;
             }
             return Data.randDirection;

@@ -12,9 +12,9 @@ public class Archon {
     static void runArchon(RobotController rc) throws GameActionException {
         /*int[] locations = Communication.getEnemyArconLocations(rc);
         int[] locations = Communication.getMetalLocations(rc);
-
+        
         String indicatorString = "";
-
+        
         for (int i = 0; i < locations.length; i++) {
             indicatorString += locations[i] + ",";
         }
@@ -23,11 +23,11 @@ public class Archon {
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
-        random = (int) (Math.random()*8);
+        random = (int) (Math.random() * 8);
         rc.writeSharedArray(61, random);
 
         //initial spawn logic
-        while (startSpawn <= 9) {
+        while (startSpawn <= 7) {
             gameStartSequence(rc);
         }
 
@@ -100,18 +100,6 @@ public class Archon {
                 }
                 break;
             case 7:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.EAST)) {
-                    rc.buildRobot(RobotType.MINER, Direction.EAST);
-                    startSpawn++;
-                }
-                break;
-            case 8:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.WEST)) {
-                    rc.buildRobot(RobotType.MINER, Direction.WEST);
-                    startSpawn++;
-                }
-                break;
-            case 9:
                 if (rc.canBuildRobot(RobotType.MINER, Direction.EAST)) {
                     rc.buildRobot(RobotType.MINER, Direction.EAST);
                     startSpawn++;
