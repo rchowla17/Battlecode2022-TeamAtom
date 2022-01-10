@@ -83,14 +83,16 @@ public class Soldier {
                     }
                 }
                 MapLocation toAttack = target.location;
-                Direction dir = Pathfinding.basicBug(rc, toAttack);
+                //Direction dir = Pathfinding.basicBug(rc, toAttack);
+                Direction dir = Pathfinding.advancedPathfinding(rc, toAttack);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
             } else {
                 Direction dir = null;
                 if (attacker && closestEnemyArcon != 0) {
-                    dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
+                    //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
+                    dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGTOARCON");
@@ -134,7 +136,8 @@ public class Soldier {
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
         if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
-            Direction dir = Pathfinding.basicBug(rc, location);
+            //Direction dir = Pathfinding.basicBug(rc, location);
+            Direction dir = Pathfinding.advancedPathfinding(rc, location);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
