@@ -177,7 +177,7 @@ public class Miner {
             Direction dir = null;
             if (closestMetal != 0) {
                 //dir = Pathfinding.basicBug(rc, closestMetalLocation);
-                dir = Pathfinding.advancedPathfinding(rc, target.location);
+                dir = Pathfinding.advancedPathfinding(rc, closestMetalLocation);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }

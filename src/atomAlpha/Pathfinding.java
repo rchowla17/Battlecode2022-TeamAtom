@@ -91,8 +91,8 @@ public class Pathfinding {
         /*
         find the direction to move like normal
         go left or right from there and see if there's less rubble
-
-
+        
+        
         */
         Direction dir = rc.getLocation().directionTo(target);
         if (dir.equals(null)) {
@@ -134,23 +134,19 @@ public class Pathfinding {
                 MapLocation leftLocation = rc.getLocation().add(leftDir);
                 MapLocation rightLocation = rc.getLocation().add(rightDir);
 
-
-                MapLocation[] options = new MapLocation[3];
-                options[0] = frontLoc;
-                options[1] = leftLocation;
-                options[2] = rightLocation;
-
-                switch (leastRubble(rc, options)) {
-                    case 0:
-                        if (rc.canMove(attemptDir))
-                            return attemptDir;
-                    case 1:
-                        if (rc.canMove(leftDir))
-                            return leftDir;
-                    case 2:
-                        if (rc.canMove(rightDir))
-                            return rightDir;
+                ArrayList<MapLocation> options = new ArrayList<MapLocation>();
+                if (rc.canSenseLocation(frontLoc)) {
+                    options.add(frontLoc);
                 }
+                if (rc.canSenseLocation(leftLocation)) {
+                    options.add(leftLocation);
+                }
+                if (rc.canSenseLocation(rightLocation)) {
+                    options.add(rightLocation);
+                }
+
+                MapLocation best = leastRubble(rc, options);
+                attemptDir = rc.getLocation().directionTo(best);
 
                 if (rc.canMove(attemptDir)) {
                     return attemptDir;
@@ -160,12 +156,12 @@ public class Pathfinding {
         }
     }
 
-     public static Direction advancedPathfinding(RobotController rc, Direction dir) throws GameActionException {
+    public static Direction advancedPathfinding(RobotController rc, Direction dir) throws GameActionException {
         /*
         find the direction to move like normal
         go left or right from there and see if there's less rubble
-
-
+        
+        
         */
         if (dir.equals(null)) {
             return Direction.CENTER;
@@ -206,23 +202,19 @@ public class Pathfinding {
                 MapLocation leftLocation = rc.getLocation().add(leftDir);
                 MapLocation rightLocation = rc.getLocation().add(rightDir);
 
-
-                MapLocation[] options = new MapLocation[3];
-                options[0] = frontLoc;
-                options[1] = leftLocation;
-                options[2] = rightLocation;
-
-                switch (leastRubble(rc, options)) {
-                    case 0:
-                        if (rc.canMove(attemptDir))
-                            return attemptDir;
-                    case 1:
-                        if (rc.canMove(leftDir))
-                            return leftDir;
-                    case 2:
-                        if (rc.canMove(rightDir))
-                            return rightDir;
+                ArrayList<MapLocation> options = new ArrayList<MapLocation>();
+                if (rc.canSenseLocation(frontLoc)) {
+                    options.add(frontLoc);
                 }
+                if (rc.canSenseLocation(leftLocation)) {
+                    options.add(leftLocation);
+                }
+                if (rc.canSenseLocation(rightLocation)) {
+                    options.add(rightLocation);
+                }
+
+                MapLocation best = leastRubble(rc, options);
+                attemptDir = rc.getLocation().directionTo(best);
 
                 if (rc.canMove(attemptDir)) {
                     return attemptDir;
@@ -232,13 +224,17 @@ public class Pathfinding {
         }
     }
 
-    public static int leastRubble(RobotController rc, MapLocation[] options) throws GameActionException{
-        int minIndex = 0;
-        for(int i = 0; i < options.length; i++){
-            if(rc.senseRubble(options[i]) < rc.senseRubble(options[minIndex]))
-                minIndex = i;
+    public static MapLocation leastRubble(RobotController rc, ArrayList<MapLocation> options)
+            throws GameActionException {
+        int minRubble = Integer.MAX_VALUE;
+        MapLocation out = rc.getLocation();
+        for (MapLocation ml : options) {
+            if ((rc.senseRubble(ml) < minRubble)) {
+                minRubble = rc.senseRubble(ml);
+                out = ml;
+            }
         }
-        return minIndex;
+        return out;
     }
 
     public static Direction scoutBug(RobotController rc, Direction dir) throws GameActionException {
