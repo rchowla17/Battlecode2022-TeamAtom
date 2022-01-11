@@ -6,7 +6,6 @@ import java.util.*;
 public class Miner {
     static MapLocation currentLoc;
     static int randomMoves = 0;
-    static boolean goRand = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         rc.setIndicatorString("");
@@ -19,13 +18,13 @@ public class Miner {
         UnitCounter.addMiner(rc);
 
         //checks nearby possible metals and removes them if they are no longer there
-        int closestMetal = getClosestPossibleMetalLocation(rc);
-        MapLocation closestMetalLocation = null;
-        if (closestMetal != 0) {
-            closestMetalLocation = Communication.convertIntMapLocation(closestMetal);
-            if (rc.canSenseLocation(closestMetalLocation)) {
-                if (rc.senseLead(closestMetalLocation) < 15) {
-                    Communication.removeMetalLocation(closestMetal, rc);
+        int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
+        MapLocation closestPossibleMetalLocation = null;
+        if (closestPossibleMetal != 0) {
+            closestPossibleMetalLocation = Communication.convertIntMapLocation(closestPossibleMetal);
+            if (rc.canSenseLocation(closestPossibleMetalLocation)) {
+                if (rc.senseLead(closestPossibleMetalLocation) < 30) {
+                    Communication.removeMetalLocation(closestPossibleMetal, rc);
                 }
             }
         }
@@ -64,22 +63,6 @@ public class Miner {
             }
         }
 
-        //logic for miners to spread out after finishing mining out a location
-        if (goRand) {
-            Direction dir = Pathfinding.randomDir(rc);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                //rc.setIndicatorString("MOVINGRAND");
-                Data.randCounter++;
-                randomMoves++;
-            }
-
-            if (randomMoves >= 10) {
-                randomMoves = 0;
-                goRand = false;
-            }
-        }
-
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
 
         MetalLocation target = findNearestMetalLocation(metalLocations, rc);
@@ -91,76 +74,45 @@ public class Miner {
         if (distanceToTarget != -1) {
             //if target is within mining distance
             if (distanceToTarget <= 2) {
-                if (target.type.equals("LEAD")) {
-                    if (rc.senseLead(target.location) <= 3) {
-                        goRand = true;
-                    }
-
-                    //continously mines possible areas
-                    for (int dx = -1; dx <= 1; dx++) {
-                        for (int dy = -1; dy <= 1; dy++) {
-                            MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
+                        if (target.type.equals("LEAD")) {
                             while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 3) {
                                 rc.mineLead(mineLocation);
-                                //rc.setIndicatorString("MININGLEAD");
+                                //rc.setIndicatorString("MININGGOLD");
                             }
                         }
-                    }
-
-                    //if there is cooldown left after mining, the unit will try to move to another target
-                    if (rc.isActionReady()) {
-                        metalLocations = senseNearbyMetals(rc);
-                        target = findNearestMetalLocation(metalLocations, rc);
-
-                        Direction dir = null;
-                        if (target != null) {
-                            //move towards target
-                            //dir = Pathfinding.basicBug(rc, target.location);
-                            dir = Pathfinding.advancedPathfinding(rc, target.location);
-                            if (rc.canMove(dir)) {
-                                rc.move(dir);
-                                //rc.setIndicatorString("MOVINGTO");
-                            }
-                        } else {
-                            //random movement since there is no found target
-                            dir = Pathfinding.randomDir(rc);
-                            if (rc.canMove(dir)) {
-                                rc.move(dir);
-                                //rc.setIndicatorString("MOVINGRAND");
-                                Data.randCounter++;
-                            }
-                        }
-                    }
-                } else if (target.type.equals("GOLD")) {
-                    for (int dx = -1; dx <= 1; dx++) {
-                        for (int dy = -1; dy <= 1; dy++) {
-                            MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
+                        if (target.type.equals("GOLD") && rc.senseGold(mineLocation) > 3) {
                             while (rc.canMineGold(mineLocation)) {
                                 rc.mineGold(mineLocation);
                                 //rc.setIndicatorString("MININGGOLD");
                             }
                         }
                     }
+                }
 
-                    if (rc.isActionReady()) {
-                        metalLocations = senseNearbyMetals(rc);
-                        target = findNearestMetalLocation(metalLocations, rc);
+                //if there is cooldown left after mining, the unit will try to move to another target
+                if (rc.isActionReady()) {
+                    metalLocations = senseNearbyMetals(rc);
+                    target = findNearestMetalLocation(metalLocations, rc);
 
-                        Direction dir = null;
-                        if (target != null) {
-                            //dir = Pathfinding.basicBug(rc, target.location);
-                            dir = Pathfinding.advancedPathfinding(rc, target.location);
-                            if (rc.canMove(dir)) {
-                                rc.move(dir);
-                                //rc.setIndicatorString("MOVINGTO");
-                            }
-                        } else {
-                            dir = Pathfinding.randomDir(rc);
-                            if (rc.canMove(dir)) {
-                                rc.move(dir);
-                                //rc.setIndicatorString("MOVINGRAND");
-                                Data.randCounter++;
-                            }
+                    Direction dir = null;
+                    if (target != null) {
+                        //move towards target
+                        //dir = Pathfinding.basicBug(rc, target.location);
+                        dir = Pathfinding.advancedPathfinding(rc, target.location);
+                        if (rc.canMove(dir)) {
+                            rc.move(dir);
+                            //rc.setIndicatorString("MOVINGTO");
+                        }
+                    } else {
+                        //random movement since there is no found target
+                        dir = Pathfinding.randomDir(rc);
+                        if (rc.canMove(dir)) {
+                            rc.move(dir);
+                            //rc.setIndicatorString("MOVINGRAND");
+                            Data.randCounter++;
                         }
                     }
                 }
@@ -174,10 +126,12 @@ public class Miner {
                 }
             }
         } else {
+            //moves towards a location in the metallocation array if it exists
             Direction dir = null;
-            if (closestMetal != 0) {
+            /*
+            if (closestPossibleMetal != 0) {
                 //dir = Pathfinding.basicBug(rc, closestMetalLocation);
-                dir = Pathfinding.advancedPathfinding(rc, closestMetalLocation);
+                dir = Pathfinding.advancedPathfinding(rc, closestPossibleMetalLocation);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
@@ -188,6 +142,13 @@ public class Miner {
                     //rc.setIndicatorString("MOVINGRAND");
                     Data.randCounter++;
                 }
+            }*/
+
+            dir = Pathfinding.randomDir(rc);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                //rc.setIndicatorString("MOVINGRAND");
+                Data.randCounter++;
             }
         }
     }
