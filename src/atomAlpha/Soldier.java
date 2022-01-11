@@ -100,7 +100,7 @@ public class Soldier {
                         //rc.setIndicatorString("MOVINGTOARCON");
                     }
                 } else {
-                    dir = Pathfinding.randomDir(rc);
+                    dir = Pathfinding.awayFromArchon(rc);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGRAND");
@@ -151,10 +151,10 @@ public class Soldier {
         if (rand == 0) {
             attacker = true;
         }
-        RobotInfo[] robots = rc.senseNearbyRobots(); //100 bytecodes
+        RobotInfo[] robots = rc.senseNearbyRobots(3, rc.getTeam());
         for (int i = 0; i < robots.length; i++) {
             RobotInfo robot = robots[i];
-            if (robot.getTeam().equals(rc.getTeam()) && rc.getType().equals(RobotType.ARCHON)) {
+            if (robot.getType() == RobotType.ARCHON) {
                 Data.spawnBaseLocation = robot.getLocation();
             }
         }

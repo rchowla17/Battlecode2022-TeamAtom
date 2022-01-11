@@ -55,7 +55,7 @@ public class Miner {
         //tries to stop miners from flocking
         if (nearbyMinerCount > 4) {
             Direction dir = null;
-            dir = Pathfinding.randomDir(rc);
+            dir = Pathfinding.awayFromArchon(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 //rc.setIndicatorString("MOVINGRAND");
@@ -108,7 +108,7 @@ public class Miner {
                         }
                     } else {
                         //random movement since there is no found target
-                        dir = Pathfinding.randomDir(rc);
+                        dir = Pathfinding.awayFromArchon(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGRAND");
@@ -136,7 +136,7 @@ public class Miner {
                     rc.move(dir);
                 }
             } else {
-                dir = Pathfinding.randomDir(rc);
+                dir = Pathfinding.awayFromArchon(rc);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     //rc.setIndicatorString("MOVINGRAND");
@@ -144,7 +144,7 @@ public class Miner {
                 }
             }*/
 
-            dir = Pathfinding.randomDir(rc);
+            dir = Pathfinding.awayFromArchon(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 //rc.setIndicatorString("MOVINGRAND");
@@ -227,10 +227,10 @@ public class Miner {
     }
 
     static void init(RobotController rc) throws GameActionException {
-        RobotInfo[] robots = rc.senseNearbyRobots();
+        RobotInfo[] robots = rc.senseNearbyRobots(3, rc.getTeam());
         for (int i = 0; i < robots.length; i++) {
             RobotInfo robot = robots[i];
-            if (robot.getTeam().equals(rc.getTeam()) && rc.getType().equals(RobotType.ARCHON)) {
+            if (robot.getType() == RobotType.ARCHON) {
                 Data.spawnBaseLocation = robot.getLocation();
             }
         }

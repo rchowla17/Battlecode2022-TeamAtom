@@ -12,7 +12,7 @@ public strictfp class RobotPlayer {
                 Archon.init();
                 break;
             case MINER:
-                Miner.init();
+                Miner.init(rc);
                 break;
             case SOLDIER:
                 Soldier.init(rc);

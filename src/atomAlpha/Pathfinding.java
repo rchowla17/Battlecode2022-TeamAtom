@@ -95,7 +95,7 @@ public class Pathfinding {
         
         */
         Direction dir = rc.getLocation().directionTo(target);
-        if (dir.equals(null)) {
+        if (dir == null) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -163,7 +163,7 @@ public class Pathfinding {
         
         
         */
-        if (dir.equals(null)) {
+        if (dir == null) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -347,34 +347,34 @@ public class Pathfinding {
         //away from archons and away from walls
         //hit wall, turn 135 (right 3 times)
 
-        MapLocation base = Data.spawnBaseLocation();
-        Direction attemptDir = advancedPathfinding(rc, base);
+        MapLocation base = Data.spawnBaseLocation;
+        Direction attemptDir = current.directionTo(base).opposite();
+        attemptDir = advancedPathfinding(rc, attemptDir);
 
-        if(!rc.canSenseLocation(current.add(attemptDir))){
-            if(current.x == 0) {
-                if(current.y > base.y)
+        if (!rc.canSenseLocation(current.add(attemptDir))) {
+            if (current.x == 0) {
+                if (current.y > base.y)
                     attemptDir.rotateRight().rotateRight().rotateRight();
                 else
                     attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else if(current.x == width-1) {
-                if(current.y < base.y)
+            } else if (current.x == width - 1) {
+                if (current.y < base.y)
                     attemptDir.rotateRight().rotateRight().rotateRight();
                 else
                     attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else if(current.y == 0) {
-                if(current.x < base.x)
+            } else if (current.y == 0) {
+                if (current.x < base.x)
                     attemptDir.rotateRight().rotateRight().rotateRight();
                 else
                     attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else{
-                if(current.x > base.x)
+            } else {
+                if (current.x > base.x)
                     attemptDir.rotateRight().rotateRight().rotateRight();
                 else
                     attemptDir.rotateLeft().rotateLeft().rotateLeft();
             }
-
+            return attemptDir;
         }
-
-        
+        return attemptDir;
     }
 }
