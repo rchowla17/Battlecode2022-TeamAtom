@@ -193,21 +193,19 @@ public class Miner {
     }
 
     static ArrayList<MetalLocation> senseNearbyMetals(RobotController rc) throws GameActionException {
+        int vision = rc.getType().visionRadiusSquared;
         ArrayList<MetalLocation> metalLocations = new ArrayList<MetalLocation>();
-        MapLocation currentLoc = rc.getLocation();
-        MapLocation[] locations = rc.getAllLocationsWithinRadiusSquared(currentLoc,
-                rc.getType().visionRadiusSquared);
+        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 10);
         for (int i = 0; i < locations.length; i++) {
             MapLocation senseLoc = locations[i];
-            if (rc.canSenseLocation(senseLoc)) {
-                int goldAmnt = rc.senseGold(senseLoc);
-                int leadAmnt = rc.senseLead(senseLoc);
-                if (goldAmnt > 0) {
-                    metalLocations.add(new MetalLocation("GOLD", goldAmnt, senseLoc));
-                } else if (leadAmnt > 0) {
-                    metalLocations.add(new MetalLocation("LEAD", leadAmnt, senseLoc));
-                }
-            }
+            int amnt = rc.senseLead(senseLoc);
+            metalLocations.add(new MetalLocation("LEAD", amnt, senseLoc));
+        }
+        locations = rc.senseNearbyLocationsWithGold(vision);
+        for (int i = 0; i < locations.length; i++) {
+            MapLocation senseLoc = locations[i];
+            int amnt = rc.senseLead(senseLoc);
+            metalLocations.add(new MetalLocation("GOLD", amnt, senseLoc));
         }
         return metalLocations;
     }
