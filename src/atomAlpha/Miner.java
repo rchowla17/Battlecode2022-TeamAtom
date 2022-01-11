@@ -54,7 +54,7 @@ public class Miner {
         }
 
         //tries to stop miners from flocking
-        if (nearbyMinerCount > 8) {
+        if (nearbyMinerCount > 4) {
             Direction dir = null;
             dir = Pathfinding.randomDir(rc);
             if (rc.canMove(dir)) {

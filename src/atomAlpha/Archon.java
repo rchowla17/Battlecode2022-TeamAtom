@@ -10,16 +10,6 @@ public class Archon {
     static int spawnOrderCounter = 0;
 
     static void runArchon(RobotController rc) throws GameActionException {
-        /*int[] locations = Communication.getEnemyArconLocations(rc);
-        int[] locations = Communication.getMetalLocations(rc);
-        
-        String indicatorString = "";
-        
-        for (int i = 0; i < locations.length; i++) {
-            indicatorString += locations[i] + ",";
-        }
-        rc.setIndicatorString(indicatorString);*/
-
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
