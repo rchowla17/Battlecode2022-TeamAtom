@@ -225,4 +225,14 @@ public class Miner {
         }
         return closestMetalLocation;
     }
+
+    static void init(RobotController rc) throws GameActionException {
+        RobotInfo[] robots = rc.senseNearbyRobots();
+        for (int i = 0; i < robots.length; i++) {
+            RobotInfo robot = robots[i];
+            if (robot.getTeam().equals(rc.getTeam()) && rc.getType().equals(RobotType.ARCHON)) {
+                Data.spawnBaseLocation = robot.getLocation();
+            }
+        }
+    }
 }
