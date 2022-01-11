@@ -87,6 +87,160 @@ public class Pathfinding {
         }
     }
 
+    public static Direction advancedPathfinding(RobotController rc, MapLocation target) throws GameActionException {
+        /*
+        find the direction to move like normal
+        go left or right from there and see if there's less rubble
+
+
+        */
+        Direction dir = rc.getLocation().directionTo(target);
+        if (dir.equals(null)) {
+            return Direction.CENTER;
+        } else if (rc.canMove(dir)) {
+            return dir;
+        } else {
+            Direction attemptDir = null;
+            for (int i = 1; i < 8; i++) {
+                switch (i) {
+                    case 1:
+                        attemptDir = dir.rotateRight();
+                        break;
+                    case 2:
+                        attemptDir = dir.rotateRight().rotateRight();
+                        break;
+                    case 3:
+                        attemptDir = dir.rotateRight().rotateRight().rotateRight();
+                        break;
+                    case 4:
+                        attemptDir = dir.rotateLeft();
+                        break;
+                    case 5:
+                        attemptDir = dir.rotateLeft().rotateLeft();
+                        break;
+                    case 6:
+                        attemptDir = dir.rotateLeft().rotateLeft().rotateLeft();
+                        break;
+                    case 7:
+                        attemptDir = dir.opposite();
+                        break;
+                    default:
+                        break;
+                }
+                Direction leftDir = attemptDir.rotateLeft();
+                Direction rightDir = attemptDir.rotateRight();
+
+                MapLocation frontLoc = rc.getLocation().add(attemptDir);
+                MapLocation leftLocation = rc.getLocation().add(leftDir);
+                MapLocation rightLocation = rc.getLocation().add(rightDir);
+
+
+                MapLocation[] options = new MapLocation[3];
+                options[0] = frontLoc;
+                options[1] = leftLocation;
+                options[2] = rightLocation;
+
+                switch (leastRubble(rc, options)) {
+                    case 0:
+                        if (rc.canMove(attemptDir))
+                            return attemptDir;
+                    case 1:
+                        if (rc.canMove(leftDir))
+                            return leftDir;
+                    case 2:
+                        if (rc.canMove(rightDir))
+                            return rightDir;
+                }
+
+                if (rc.canMove(attemptDir)) {
+                    return attemptDir;
+                }
+            }
+            return Direction.CENTER;
+        }
+    }
+
+     public static Direction advancedPathfinding(RobotController rc, Direction dir) throws GameActionException {
+        /*
+        find the direction to move like normal
+        go left or right from there and see if there's less rubble
+
+
+        */
+        if (dir.equals(null)) {
+            return Direction.CENTER;
+        } else if (rc.canMove(dir)) {
+            return dir;
+        } else {
+            Direction attemptDir = null;
+            for (int i = 1; i < 8; i++) {
+                switch (i) {
+                    case 1:
+                        attemptDir = dir.rotateRight();
+                        break;
+                    case 2:
+                        attemptDir = dir.rotateRight().rotateRight();
+                        break;
+                    case 3:
+                        attemptDir = dir.rotateRight().rotateRight().rotateRight();
+                        break;
+                    case 4:
+                        attemptDir = dir.rotateLeft();
+                        break;
+                    case 5:
+                        attemptDir = dir.rotateLeft().rotateLeft();
+                        break;
+                    case 6:
+                        attemptDir = dir.rotateLeft().rotateLeft().rotateLeft();
+                        break;
+                    case 7:
+                        attemptDir = dir.opposite();
+                        break;
+                    default:
+                        break;
+                }
+                Direction leftDir = attemptDir.rotateLeft();
+                Direction rightDir = attemptDir.rotateRight();
+
+                MapLocation frontLoc = rc.getLocation().add(attemptDir);
+                MapLocation leftLocation = rc.getLocation().add(leftDir);
+                MapLocation rightLocation = rc.getLocation().add(rightDir);
+
+
+                MapLocation[] options = new MapLocation[3];
+                options[0] = frontLoc;
+                options[1] = leftLocation;
+                options[2] = rightLocation;
+
+                switch (leastRubble(rc, options)) {
+                    case 0:
+                        if (rc.canMove(attemptDir))
+                            return attemptDir;
+                    case 1:
+                        if (rc.canMove(leftDir))
+                            return leftDir;
+                    case 2:
+                        if (rc.canMove(rightDir))
+                            return rightDir;
+                }
+
+                if (rc.canMove(attemptDir)) {
+                    return attemptDir;
+                }
+            }
+            return Direction.CENTER;
+        }
+    }
+
+    public static int leastRubble(RobotController rc, MapLocation[] options) throws GameActionException{
+        int minIndex = 0;
+        for(int i = 0; i < options.length; i++){
+            if(rc.senseRubble(options[i]) < rc.senseRubble(options[minIndex]))
+                minIndex = i;
+        }
+        return minIndex;
+    }
+
     public static Direction scoutBug(RobotController rc, Direction dir) throws GameActionException {
         if (dir.equals(null)) {
             return Direction.CENTER;

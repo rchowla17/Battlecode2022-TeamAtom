@@ -115,7 +115,8 @@ public class Miner {
                         Direction dir = null;
                         if (target != null) {
                             //move towards target
-                            dir = Pathfinding.basicBug(rc, target.location);
+                            //dir = Pathfinding.basicBug(rc, target.location);
+                            dir = Pathfinding.advancedPathfinding(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 //rc.setIndicatorString("MOVINGTO");
@@ -147,7 +148,8 @@ public class Miner {
 
                         Direction dir = null;
                         if (target != null) {
-                            dir = Pathfinding.basicBug(rc, target.location);
+                            //dir = Pathfinding.basicBug(rc, target.location);
+                            dir = Pathfinding.advancedPathfinding(rc, target.location);
                             if (rc.canMove(dir)) {
                                 rc.move(dir);
                                 //rc.setIndicatorString("MOVINGTO");
@@ -164,7 +166,8 @@ public class Miner {
                 }
             } else {
                 Direction dir = null;
-                dir = Pathfinding.basicBug(rc, target.location);
+                //dir = Pathfinding.basicBug(rc, target.location);
+                dir = Pathfinding.advancedPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     //rc.setIndicatorString("MOVINGTO");
@@ -173,7 +176,8 @@ public class Miner {
         } else {
             Direction dir = null;
             if (closestMetal != 0) {
-                dir = Pathfinding.basicBug(rc, closestMetalLocation);
+                //dir = Pathfinding.basicBug(rc, closestMetalLocation);
+                dir = Pathfinding.advancedPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
