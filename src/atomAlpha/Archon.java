@@ -17,7 +17,9 @@ public class Archon {
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
-        random = (int) (Math.random() * 8);
+        // random = (int) (Math.random() * 8);
+        // rc.writeSharedArray(61, random);
+        random = (int) (Math.random() * 3);
         rc.writeSharedArray(61, random);
 
         //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
