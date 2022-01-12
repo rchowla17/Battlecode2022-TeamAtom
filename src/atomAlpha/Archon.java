@@ -49,8 +49,9 @@ public class Archon {
         /*while (startSpawn <= 7) {
             gameStartSequence(rc);
         }*/
-
-        normalSpawnSequence(rc);
+        if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()) {
+            normalSpawnSequence(rc);
+        }
     }
 
     public static void normalSpawnSequence(RobotController rc) throws GameActionException {
@@ -60,18 +61,21 @@ public class Archon {
         if (!seenEnemy) {
             if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
                 rc.buildRobot(RobotType.MINER, spawnDir);
+                Communication.increaseArchonSpawnIndex(rc);
             }
         } else {
             switch (spawn) {
                 case SOLDIER:
                     if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
                         rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
                         spawnOrderCounter++;
                     }
                     break;
                 case MINER:
                     if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
                         rc.buildRobot(RobotType.MINER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
                         spawnOrderCounter++;
                     }
                     break;
@@ -134,7 +138,9 @@ public class Archon {
     }
 
     //unit initilization 
-    public static void init(RobotController rc) {
+    public static void init(RobotController rc) throws GameActionException {
+        Communication.addArchonId(rc, rc.getID());
+
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.MINER);

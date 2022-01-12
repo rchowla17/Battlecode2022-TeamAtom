@@ -107,6 +107,31 @@ public class Communication {
         setCommArrayIndexToZero(rc, 15);
     }
 
+    static void addArchonId(RobotController rc, int id) throws GameActionException {
+        int[] ids = new int[] { rc.readSharedArray(50), rc.readSharedArray(51), rc.readSharedArray(52),
+                rc.readSharedArray(53) };
+        for (int i = 0; i < ids.length; i++) {
+            if (ids[i] == 0) {
+                rc.writeSharedArray(i + 50, id);
+                break;
+            }
+        }
+    }
+
+    static int getArchonSpawnIndex(RobotController rc) throws GameActionException {
+        return rc.readSharedArray(54) % rc.getArchonCount();
+    }
+
+    static void increaseArchonSpawnIndex(RobotController rc) throws GameActionException {
+        rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
+    }
+
+    static int[] getArchonIds(RobotController rc) throws GameActionException {
+        int[] ids = new int[] { rc.readSharedArray(50), rc.readSharedArray(51), rc.readSharedArray(52),
+                rc.readSharedArray(53) };
+        return ids;
+    }
+
     static MapLocation convertIntToMapLocation(int location) {
         String locationS = Integer.toString(location);
         int x = 0, y = 0;
