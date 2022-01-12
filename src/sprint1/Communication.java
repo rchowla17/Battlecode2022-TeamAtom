@@ -1,4 +1,4 @@
-package atomAlpha;
+package sprint1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -47,8 +47,8 @@ public class Communication {
                 rc.readSharedArray(7), rc.readSharedArray(8), rc.readSharedArray(9) };
         for (int i = 0; i < locations.length; i++) {
             if (locations[i] != 0) {
-                MapLocation mapLocation = convertIntToMapLocation(locations[i]);
-                MapLocation thisLocation = convertIntToMapLocation(location);
+                MapLocation mapLocation = convertIntMapLocation(locations[i]);
+                MapLocation thisLocation = convertIntMapLocation(location);
                 if (mapLocation.distanceSquaredTo(thisLocation) < 20) {
                     break;
                 }
@@ -75,39 +75,7 @@ public class Communication {
         return locations;
     }
 
-    static void addEnemyLocation(RobotController rc, int location) throws GameActionException {
-        int[] locations = new int[] { rc.readSharedArray(10), rc.readSharedArray(11), rc.readSharedArray(12),
-                rc.readSharedArray(13), rc.readSharedArray(14), rc.readSharedArray(15) };
-        for (int i = 0; i < locations.length; i++) {
-            if (locations[i] != 0) {
-                MapLocation mapLocation = convertIntToMapLocation(locations[i]);
-                MapLocation thisLocation = convertIntToMapLocation(location);
-                if (mapLocation.distanceSquaredTo(thisLocation) < 50) {
-                    break;
-                }
-            } else if (locations[i] == 0) {
-                rc.writeSharedArray(i + 10, location);
-                break;
-            }
-        }
-    }
-
-    static int[] getEnemyLocations(RobotController rc) throws GameActionException {
-        int[] locations = new int[] { rc.readSharedArray(10), rc.readSharedArray(11), rc.readSharedArray(12),
-                rc.readSharedArray(13), rc.readSharedArray(14), rc.readSharedArray(15) };
-        return locations;
-    }
-
-    static void clearEnemyLocations(RobotController rc) throws GameActionException {
-        setCommArrayIndexToZero(rc, 10);
-        setCommArrayIndexToZero(rc, 11);
-        setCommArrayIndexToZero(rc, 12);
-        setCommArrayIndexToZero(rc, 13);
-        setCommArrayIndexToZero(rc, 14);
-        setCommArrayIndexToZero(rc, 15);
-    }
-
-    static MapLocation convertIntToMapLocation(int location) {
+    static MapLocation convertIntMapLocation(int location) {
         String locationS = Integer.toString(location);
         int x = 0, y = 0;
         if (locationS.length() == 3) {

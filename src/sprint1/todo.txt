@@ -1,0 +1,4 @@
+enemy base prediction
+unit counter
+    miner/soldier unit count balance
+pathfinding
