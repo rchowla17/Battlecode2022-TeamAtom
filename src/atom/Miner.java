@@ -168,7 +168,7 @@ public class Miner {
     static ArrayList<MetalLocation> senseNearbyMetals(RobotController rc) throws GameActionException {
         int vision = rc.getType().visionRadiusSquared;
         ArrayList<MetalLocation> metalLocations = new ArrayList<MetalLocation>();
-        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 20);
+        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 5);
         for (int i = 0; i < locations.length; i++) {
             MapLocation senseLoc = locations[i];
             int amnt = rc.senseLead(senseLoc);
