@@ -5,8 +5,5 @@ miner/soldier unit count balance based on
 
 pathfinding
 
-better soldier movement
-    flock towards areas where there are a lot of enemy soldiers
-
 take into account multiple enemies when running away - miner class 46
 

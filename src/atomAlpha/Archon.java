@@ -11,6 +11,8 @@ public class Archon {
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
     static int archonNumber = 1;
 
+    static boolean seenEnemy = false;
+
     /* Archon Logic:
         First 9 things build will be miners in each of the different directions
         After that, every time we run Archon, we will alternate building Miners and Soldiers
@@ -34,10 +36,19 @@ public class Archon {
             Communication.clearEnemyLocations(rc);
         }
 
-        //initial spawn logic
-        while (startSpawn <= 7) {
-            gameStartSequence(rc);
+        if (!seenEnemy) {
+            int[] enemyLocations = Communication.getEnemyLocations(rc);
+            for (int i = 0; i < enemyLocations.length; i++) {
+                if (enemyLocations[i] != 0) {
+                    seenEnemy = true;
+                }
+            }
         }
+
+        //initial spawn logic
+        /*while (startSpawn <= 7) {
+            gameStartSequence(rc);
+        }*/
 
         normalSpawnSequence(rc);
     }
@@ -46,19 +57,25 @@ public class Archon {
         RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
         Direction spawnDir = openSpawnLocation(rc, spawn);
 
-        switch (spawn) {
-            case SOLDIER:
-                if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
-                    rc.buildRobot(RobotType.SOLDIER, spawnDir);
-                    spawnOrderCounter++;
-                }
-                break;
-            case MINER:
-                if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
-                    rc.buildRobot(RobotType.MINER, spawnDir);
-                    spawnOrderCounter++;
-                }
-                break;
+        if (!seenEnemy) {
+            if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                rc.buildRobot(RobotType.MINER, spawnDir);
+            }
+        } else {
+            switch (spawn) {
+                case SOLDIER:
+                    if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                        rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                        spawnOrderCounter++;
+                    }
+                    break;
+                case MINER:
+                    if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                        rc.buildRobot(RobotType.MINER, spawnDir);
+                        spawnOrderCounter++;
+                    }
+                    break;
+            }
         }
     }
 

@@ -43,11 +43,21 @@ public class Miner {
                     nearbyMinerCount++; //nearby miner counter
                 } else if (robot.getTeam().equals(opponent) && robot.getType().equals(RobotType.SOLDIER)
                         || robot.getType().equals(RobotType.SAGE)) {
+
+                    String x = String.format("%02d", robot.getLocation().x);
+                    String y = String.format("%02d", robot.getLocation().y);
+                    String locationS = x + y;
+                    Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
                     //run from enemy attackers
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
+                } else if (robot.getTeam().equals(opponent)) {
+                    String x = String.format("%02d", robot.getLocation().x);
+                    String y = String.format("%02d", robot.getLocation().y);
+                    String locationS = x + y;
+                    Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
                 }
             }
         }
