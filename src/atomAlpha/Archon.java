@@ -8,6 +8,8 @@ public class Archon {
 
     static ArrayList<RobotType> spawnOrder = new ArrayList<RobotType>();
     static int spawnOrderCounter = 0;
+    static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
+    static int archonNumber = 1;
 
     /* Archon Logic:
         First 9 things build will be miners in each of the different directions
@@ -22,6 +24,8 @@ public class Archon {
         // rc.writeSharedArray(61, random);
         random = (int) (Math.random() * 3);
         rc.writeSharedArray(61, random);
+
+        archonNumber = rc.getArchonCount();
 
         //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
         UnitCounter.reset(rc);
@@ -58,7 +62,8 @@ public class Archon {
     public static void gameStartSequence(RobotController rc) throws GameActionException {
         switch (startSpawn) {
             case 0:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHEAST)) {
+                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHEAST)
+                        && rc.getTeamLeadAmount(rc.getTeam()) > RobotType.MINER.buildCostLead * arch) {
                     rc.buildRobot(RobotType.MINER, Direction.NORTHEAST);
                     startSpawn++;
                 }
@@ -109,15 +114,26 @@ public class Archon {
     }
 
     //unit initilization 
-    public static void init() {
+    public static void init(RobotController rc) {
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.MINER);
+
+        MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+        Direction dirToCenter = rc.getLocation().directionTo(center);
+        spawnDirections.add(dirToCenter);
+        spawnDirections.add(dirToCenter.rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight());
+        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight().rotateRight());
+        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft().rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight().rotateRight().rotateRight());
+        spawnDirections.add(dirToCenter.opposite());
     }
 
     //returns open spawn direction
     public static Direction openSpawnLocation(RobotController rc, RobotType type) throws GameActionException {
-        for (Direction dir : Data.directions) {
+        for (Direction dir : spawnDirections) {
             if (rc.canBuildRobot(type, dir)) {
                 return dir;
             }

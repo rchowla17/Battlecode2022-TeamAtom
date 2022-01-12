@@ -9,7 +9,7 @@ public strictfp class RobotPlayer {
 
         switch (type) {
             case ARCHON:
-                Archon.init();
+                Archon.init(rc);
                 break;
             case MINER:
                 Miner.init(rc);
