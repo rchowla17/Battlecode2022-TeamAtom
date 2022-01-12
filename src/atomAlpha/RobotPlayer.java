@@ -25,6 +25,7 @@ public strictfp class RobotPlayer {
                 Builder.init(rc);
                 break;
             case SAGE:
+                Sage.init(rc);
                 break;
         }
 
@@ -48,6 +49,7 @@ public strictfp class RobotPlayer {
                         Builder.runBuilder(rc);
                         break;
                     case SAGE:
+                        Sage.runSage(rc);
                         break;
                 }
             } catch (GameActionException e) {

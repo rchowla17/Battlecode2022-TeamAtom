@@ -20,9 +20,7 @@ public class Archon {
     */
     static void runArchon(RobotController rc) throws GameActionException {
         //allows for differing random numbers across instances on the same turn
-        int random = (int) (Math.random() * 2);
-        rc.writeSharedArray(62, random);
-        random = (int) (Math.random() * 8);
+        int random = (int) (Math.random() * 8);
         rc.writeSharedArray(61, random);
         //random = (int) (Math.random() * 3);
         //rc.writeSharedArray(60, random);
@@ -72,7 +70,13 @@ public class Archon {
         } else {
             switch (spawn) {
                 case SOLDIER:
-                    if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                    if (rc.getTeamGoldAmount(rc.getTeam()) >= 50) {
+                        if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
+                            rc.buildRobot(RobotType.SAGE, spawnDir);
+                            Communication.increaseArchonSpawnIndex(rc);
+                            spawnOrderCounter++;
+                        }
+                    } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
                         rc.buildRobot(RobotType.SOLDIER, spawnDir);
                         Communication.increaseArchonSpawnIndex(rc);
                         spawnOrderCounter++;

@@ -4,8 +4,6 @@ import battlecode.common.*;
 import java.util.*;
 
 public class Soldier {
-    static boolean attacker = false;
-
     static void runSoldier(RobotController rc) throws GameActionException {
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
@@ -95,7 +93,7 @@ public class Soldier {
                 }
             } else {
                 Direction dir = null;
-                if (attacker && closestEnemyArcon != 0) {
+                if (closestEnemyArcon != 0) {
                     //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
                     dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
@@ -184,10 +182,6 @@ public class Soldier {
     }
 
     static void init(RobotController rc) throws GameActionException {
-        int rand = rc.readSharedArray(62);
-        if (rand == 0) {
-            attacker = true;
-        }
         RobotInfo[] robots = rc.senseNearbyRobots(3, rc.getTeam());
         for (int i = 0; i < robots.length; i++) {
             RobotInfo robot = robots[i];
