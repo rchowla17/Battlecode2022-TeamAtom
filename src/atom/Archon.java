@@ -11,7 +11,7 @@ public class Archon {
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
     static int archonNumber = 1;
 
-    static boolean seenEnemy = false;
+    //static boolean seenEnemy = false;
 
     /* Archon Logic:
         First 9 things build will be miners in each of the different directions
@@ -34,19 +34,19 @@ public class Archon {
             Communication.clearEnemyLocations(rc);
         }
 
-        if (!seenEnemy) {
+        /*if (!seenEnemy) {
             int[] enemyLocations = Communication.getEnemyLocations(rc);
             for (int i = 0; i < enemyLocations.length; i++) {
                 if (enemyLocations[i] != 0) {
                     seenEnemy = true;
                 }
             }
-        }
+        }*/
 
         //initial spawn logic
-        /*while (startSpawn <= 7) {
+        while (startSpawn <= 6) {
             gameStartSequence(rc);
-        }*/
+        }
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()) {
             normalSpawnSequence(rc);
         }
@@ -62,35 +62,35 @@ public class Archon {
         RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
         Direction spawnDir = openSpawnLocation(rc, spawn);
 
-        if (!seenEnemy) {
+        /*if (!seenEnemy) {
             if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
                 rc.buildRobot(RobotType.MINER, spawnDir);
                 Communication.increaseArchonSpawnIndex(rc);
             }
-        } else {
-            switch (spawn) {
-                case SOLDIER:
-                    if (rc.getTeamGoldAmount(rc.getTeam()) >= 50) {
-                        if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
-                            rc.buildRobot(RobotType.SAGE, spawnDir);
-                            Communication.increaseArchonSpawnIndex(rc);
-                            spawnOrderCounter++;
-                        }
-                    } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
-                        rc.buildRobot(RobotType.SOLDIER, spawnDir);
+        } else {*/
+        switch (spawn) {
+            case SOLDIER:
+                if (rc.getTeamGoldAmount(rc.getTeam()) >= 20) {
+                    if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
+                        rc.buildRobot(RobotType.SAGE, spawnDir);
                         Communication.increaseArchonSpawnIndex(rc);
                         spawnOrderCounter++;
                     }
-                    break;
-                case MINER:
-                    if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
-                        rc.buildRobot(RobotType.MINER, spawnDir);
-                        Communication.increaseArchonSpawnIndex(rc);
-                        spawnOrderCounter++;
-                    }
-                    break;
-            }
+                } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                    rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                    Communication.increaseArchonSpawnIndex(rc);
+                    spawnOrderCounter++;
+                }
+                break;
+            case MINER:
+                if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                    rc.buildRobot(RobotType.MINER, spawnDir);
+                    Communication.increaseArchonSpawnIndex(rc);
+                    spawnOrderCounter++;
+                }
+                break;
         }
+        //}
     }
 
     //initial starting logic
