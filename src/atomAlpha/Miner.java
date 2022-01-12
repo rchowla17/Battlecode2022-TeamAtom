@@ -18,7 +18,7 @@ public class Miner {
         UnitCounter.addMiner(rc);
 
         //checks nearby possible metals and removes them if they are no longer there
-        int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
+        /*int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
         MapLocation closestPossibleMetalLocation = null;
         if (closestPossibleMetal != 0) {
             closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
@@ -27,7 +27,7 @@ public class Miner {
                     Communication.removeMetalLocation(closestPossibleMetal, rc);
                 }
             }
-        }
+        }*/
 
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
@@ -36,6 +36,8 @@ public class Miner {
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    //MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+                    //Direction dir = rc.getLocation().directionTo(center);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
@@ -63,12 +65,12 @@ public class Miner {
         }
 
         //tries to stop miners from flocking
-        if (nearbyMinerCount > 4) {
+        if (nearbyMinerCount > 3) {
             Direction dir = null;
             dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                //rc.setIndicatorString("MOVINGRAND");
+                rc.setIndicatorString("WANDERFROMFLOCK");
                 Data.randCounter++;
             }
         }
@@ -114,14 +116,14 @@ public class Miner {
                         dir = Pathfinding.advancedPathfinding(rc, target.location);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
-                            //rc.setIndicatorString("MOVINGTO");
+                            rc.setIndicatorString("MOVINGTOTARGET");
                         }
                     } else {
                         //random movement since there is no found target
                         dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
-                            //rc.setIndicatorString("MOVINGRAND");
+                            rc.setIndicatorString("WANDER");
                             Data.randCounter++;
                         }
                     }
@@ -132,7 +134,7 @@ public class Miner {
                 dir = Pathfinding.advancedPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
-                    //rc.setIndicatorString("MOVINGTO");
+                    rc.setIndicatorString("MOVINGTOTARGET");
                 }
             }
         } else {
@@ -157,7 +159,7 @@ public class Miner {
             dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                //rc.setIndicatorString("MOVINGRAND");
+                rc.setIndicatorString("WANDER");
                 Data.randCounter++;
             }
         }
@@ -166,7 +168,7 @@ public class Miner {
     static ArrayList<MetalLocation> senseNearbyMetals(RobotController rc) throws GameActionException {
         int vision = rc.getType().visionRadiusSquared;
         ArrayList<MetalLocation> metalLocations = new ArrayList<MetalLocation>();
-        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 10);
+        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 20);
         for (int i = 0; i < locations.length; i++) {
             MapLocation senseLoc = locations[i];
             int amnt = rc.senseLead(senseLoc);

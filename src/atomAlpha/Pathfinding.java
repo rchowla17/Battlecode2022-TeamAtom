@@ -352,12 +352,12 @@ public class Pathfinding {
 
         int distThreshold = Integer.MAX_VALUE;
         if (attemptDir == Direction.NORTH || attemptDir == Direction.SOUTH) {
-            distThreshold = rc.getMapHeight() * 3 / 4;
+            distThreshold = rc.getMapHeight() * 3 / 5;
         } else if (attemptDir == Direction.WEST || attemptDir == Direction.EAST) {
-            distThreshold = rc.getMapWidth() * 3 / 4;
+            distThreshold = rc.getMapWidth() * 3 / 5;
         } else {
             distThreshold = (int) (Math
-                    .sqrt(Math.pow(rc.getMapHeight(), 2) + Math.pow(rc.getMapWidth(), 2) * 3 / 4));
+                    .sqrt(Math.pow(rc.getMapHeight(), 2) + Math.pow(rc.getMapWidth(), 2) * 3 / 5));
         }
 
         if (Math.sqrt(rc.getLocation().distanceSquaredTo(Data.spawnBaseLocation)) > distThreshold) {
