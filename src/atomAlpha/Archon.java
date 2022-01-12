@@ -55,6 +55,12 @@ public class Archon {
     }
 
     public static void normalSpawnSequence(RobotController rc) throws GameActionException {
+        if (UnitCounter.getMiners(rc) > 100 && spawnOrder.size() == 3) {
+            spawnOrder.add(RobotType.SOLDIER);
+        } else if (UnitCounter.getMiners(rc) < 80 && spawnOrder.size() == 4) {
+            spawnOrder.remove(RobotType.SOLDIER);
+        }
+
         RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
         Direction spawnDir = openSpawnLocation(rc, spawn);
 
