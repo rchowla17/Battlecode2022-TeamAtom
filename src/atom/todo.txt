@@ -4,6 +4,7 @@ miner/soldier unit count balance based on
     round number, resource availibility, income gain per round
 
 pathfinding
+    put miners and soldiers on most optimal block to act
 
 take into account multiple enemies when running away - miner class 46
 
