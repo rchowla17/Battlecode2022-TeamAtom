@@ -30,7 +30,7 @@ public class Archon {
         //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
         UnitCounter.reset(rc);
 
-        if (rc.getRoundNum() % 5 == 0) {
+        if (rc.getRoundNum() % 3 == 0) {
             Communication.clearEnemyLocations(rc);
         }
 

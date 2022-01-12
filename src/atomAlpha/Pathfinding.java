@@ -371,32 +371,29 @@ public class Pathfinding {
             attemptDir = attemptDir.rotateRight();
         }
 
-        attemptDir = advancedPathfinding(rc, attemptDir);
+        //attemptDir = advancedPathfinding(rc, attemptDir);
 
-        if (!rc.canSenseLocation(current.add(attemptDir))) {
-            if (current.x == 0) {
-                if (current.y > base.y)
-                    attemptDir.rotateRight().rotateRight().rotateRight();
-                else
-                    attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else if (current.x == width - 1) {
-                if (current.y < base.y)
-                    attemptDir.rotateRight().rotateRight().rotateRight();
-                else
-                    attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else if (current.y == 0) {
-                if (current.x < base.x)
-                    attemptDir.rotateRight().rotateRight().rotateRight();
-                else
-                    attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            } else {
-                if (current.x > base.x)
-                    attemptDir.rotateRight().rotateRight().rotateRight();
-                else
-                    attemptDir.rotateLeft().rotateLeft().rotateLeft();
-            }
-            return attemptDir;
+        if (current.x <= 2) {
+            if (current.y > base.y)
+                attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
+            else
+                attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
+        } else if (current.x >= width - 3) {
+            if (current.y < base.y)
+                attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
+            else
+                attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
+        } else if (current.y <= 2) {
+            if (current.x < base.x)
+                attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
+            else
+                attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
+        } else if (current.x >= height - 3) {
+            if (current.x > base.x)
+                attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
+            else
+                attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
         }
-        return attemptDir;
+        return advancedPathfinding(rc, attemptDir);
     }
 }
