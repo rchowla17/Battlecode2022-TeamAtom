@@ -21,7 +21,7 @@ public class Miner {
         int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
         MapLocation closestPossibleMetalLocation = null;
         if (closestPossibleMetal != 0) {
-            closestPossibleMetalLocation = Communication.convertIntMapLocation(closestPossibleMetal);
+            closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
             if (rc.canSenseLocation(closestPossibleMetalLocation)) {
                 if (rc.senseLead(closestPossibleMetalLocation) < 30) {
                     Communication.removeMetalLocation(closestPossibleMetal, rc);
@@ -55,7 +55,7 @@ public class Miner {
         //tries to stop miners from flocking
         if (nearbyMinerCount > 4) {
             Direction dir = null;
-            dir = Pathfinding.awayFromArchon(rc);
+            dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 //rc.setIndicatorString("MOVINGRAND");
@@ -83,7 +83,7 @@ public class Miner {
                                 //rc.setIndicatorString("MININGGOLD");
                             }
                         }
-                        if (target.type.equals("GOLD") && rc.senseGold(mineLocation) > 3) {
+                        if (target.type.equals("GOLD")) {
                             while (rc.canMineGold(mineLocation)) {
                                 rc.mineGold(mineLocation);
                                 //rc.setIndicatorString("MININGGOLD");
@@ -108,7 +108,7 @@ public class Miner {
                         }
                     } else {
                         //random movement since there is no found target
-                        dir = Pathfinding.awayFromArchon(rc);
+                        dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGRAND");
@@ -136,7 +136,7 @@ public class Miner {
                     rc.move(dir);
                 }
             } else {
-                dir = Pathfinding.awayFromArchon(rc);
+                dir = Pathfinding.wander(rc);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     //rc.setIndicatorString("MOVINGRAND");
@@ -144,7 +144,7 @@ public class Miner {
                 }
             }*/
 
-            dir = Pathfinding.awayFromArchon(rc);
+            dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 //rc.setIndicatorString("MOVINGRAND");
@@ -199,12 +199,12 @@ public class Miner {
             }
         }
 
-        if (target != null) {
+        /*if (target != null) {
             String x = String.format("%02d", target.location.x);
             String y = String.format("%02d", target.location.y);
             String locationS = x + y;
             Communication.addMetalLocation(rc, Integer.parseInt(locationS));
-        }
+        }*/
 
         return target;
     }
@@ -216,7 +216,7 @@ public class Miner {
 
         for (int i = 0; i < metalLocations.length; i++) {
             if (!(metalLocations[i] == 0)) {
-                MapLocation location = Communication.convertIntMapLocation(metalLocations[i]);
+                MapLocation location = Communication.convertIntToMapLocation(metalLocations[i]);
                 if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
                     closestMetalLocation = metalLocations[i];
                     distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);

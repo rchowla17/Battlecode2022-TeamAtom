@@ -340,7 +340,7 @@ public class Pathfinding {
         }
     }
 
-    public static Direction awayFromArchon(RobotController rc) throws GameActionException {
+    public static Direction wander(RobotController rc) throws GameActionException {
         MapLocation current = rc.getLocation();
         int height = rc.getMapHeight();
         int width = rc.getMapWidth();
@@ -349,6 +349,28 @@ public class Pathfinding {
 
         MapLocation base = Data.spawnBaseLocation;
         Direction attemptDir = current.directionTo(base).opposite();
+
+        int distThreshold = Integer.MAX_VALUE;
+        if (attemptDir == Direction.NORTH || attemptDir == Direction.SOUTH) {
+            distThreshold = rc.getMapHeight() * 3 / 4;
+        } else if (attemptDir == Direction.WEST || attemptDir == Direction.EAST) {
+            distThreshold = rc.getMapWidth() * 3 / 4;
+        } else {
+            distThreshold = (int) (Math
+                    .sqrt(Math.pow(rc.getMapHeight(), 2) + Math.pow(rc.getMapWidth(), 2) * 3 / 4));
+        }
+
+        if (Math.sqrt(rc.getLocation().distanceSquaredTo(Data.spawnBaseLocation)) > distThreshold) {
+            return randomDir(rc);
+        }
+
+        int rand = (int) (Math.random() * 3);
+        if (rand == 1) {
+            attemptDir = attemptDir.rotateLeft();
+        } else if (rand == 2) {
+            attemptDir = attemptDir.rotateRight();
+        }
+
         attemptDir = advancedPathfinding(rc, attemptDir);
 
         if (!rc.canSenseLocation(current.add(attemptDir))) {

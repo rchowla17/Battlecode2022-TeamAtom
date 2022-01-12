@@ -20,15 +20,19 @@ public class Archon {
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 2);
         rc.writeSharedArray(62, random);
-        // random = (int) (Math.random() * 8);
-        // rc.writeSharedArray(61, random);
-        random = (int) (Math.random() * 3);
+        random = (int) (Math.random() * 8);
         rc.writeSharedArray(61, random);
+        //random = (int) (Math.random() * 3);
+        //rc.writeSharedArray(60, random);
 
         archonNumber = rc.getArchonCount();
 
         //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
         UnitCounter.reset(rc);
+
+        if (rc.getRoundNum() % 5 == 0) {
+            Communication.clearEnemyLocations(rc);
+        }
 
         //initial spawn logic
         while (startSpawn <= 7) {
@@ -62,8 +66,7 @@ public class Archon {
     public static void gameStartSequence(RobotController rc) throws GameActionException {
         switch (startSpawn) {
             case 0:
-                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHEAST)
-                        && rc.getTeamLeadAmount(rc.getTeam()) > RobotType.MINER.buildCostLead * arch) {
+                if (rc.canBuildRobot(RobotType.MINER, Direction.NORTHEAST)) {
                     rc.buildRobot(RobotType.MINER, Direction.NORTHEAST);
                     startSpawn++;
                 }
@@ -133,9 +136,14 @@ public class Archon {
 
     //returns open spawn direction
     public static Direction openSpawnLocation(RobotController rc, RobotType type) throws GameActionException {
-        for (Direction dir : spawnDirections) {
-            if (rc.canBuildRobot(type, dir)) {
-                return dir;
+        int rand = (int) (Math.random() * 3);
+        if (rc.canBuildRobot(type, spawnDirections.get(rand))) {
+            return spawnDirections.get(rand);
+        } else {
+            for (Direction dir : spawnDirections) {
+                if (rc.canBuildRobot(type, dir)) {
+                    return dir;
+                }
             }
         }
         return Direction.CENTER;
