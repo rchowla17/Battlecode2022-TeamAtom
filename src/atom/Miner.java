@@ -36,7 +36,7 @@ public class Miner {
 
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
-                    dir = Pathfinding.advancedPathfinding(rc, dir);
+                    dir = Pathfinding.greedyPathfinding(rc, dir);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
@@ -81,7 +81,7 @@ public class Miner {
                     }
                 }
 
-                Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
+                Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
                 if (rc.canMove(moveToOptimalLocation)) {
                     rc.move(moveToOptimalLocation);
                 }
@@ -112,7 +112,7 @@ public class Miner {
                     if (target != null) {
                         //move towards target
                         //dir = Pathfinding.basicBug(rc, target.location);
-                        dir = Pathfinding.advancedPathfinding(rc, target.location);
+                        dir = Pathfinding.greedyPathfinding(rc, target.location);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             rc.setIndicatorString("MOVINGTOTARGET");
@@ -128,7 +128,7 @@ public class Miner {
                     }
                 }*/
             } else {
-                Direction dir = Pathfinding.advancedPathfinding(rc, target.location);
+                Direction dir = Pathfinding.greedyPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     //rc.setIndicatorString("MOVINGTOTARGET");

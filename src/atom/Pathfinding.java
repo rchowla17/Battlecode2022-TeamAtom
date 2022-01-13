@@ -139,6 +139,7 @@ public class Pathfinding {
             throws GameActionException {
         int minRubble = Integer.MAX_VALUE;
         MapLocation out = rc.getLocation();
+
         for (MapLocation ml : options) {
             if ((rc.senseRubble(ml) < minRubble)) {
                 minRubble = rc.senseRubble(ml);
@@ -146,6 +147,65 @@ public class Pathfinding {
             }
         }
         return out;
+    }
+
+    public static Direction greedyPathfinding(RobotController rc, Direction dir) throws GameActionException {
+        if (dir == null) {
+            return Direction.CENTER;
+        } else {
+            Direction leftDir = dir.rotateLeft();
+            Direction rightDir = dir.rotateRight();
+            //Direction leftlDir = dir.rotateLeft().rotateLeft();
+            //Direction rightrDir = dir.rotateRight().rotateRight();
+            MapLocation frontLoc = rc.getLocation().add(dir);
+            MapLocation leftLocation = rc.getLocation().add(leftDir);
+            MapLocation rightLocation = rc.getLocation().add(rightDir);
+            //MapLocation leftlLocation = rc.getLocation().add(leftlDir);
+            //MapLocation rightrLocation = rc.getLocation().add(rightrDir);
+
+            ArrayList<MapLocation> options = new ArrayList<MapLocation>();
+            if (rc.canSenseLocation(frontLoc)) {
+                options.add(frontLoc);
+            }
+            if (rc.canSenseLocation(leftLocation)) {
+                options.add(leftLocation);
+            }
+            if (rc.canSenseLocation(rightLocation)) {
+                options.add(rightLocation);
+            }
+            /*
+            if (rc.canSenseLocation(leftlLocation)) {
+                options.add(leftlLocation);
+            }
+            if (rc.canSenseLocation(rightrLocation)) {
+                options.add(rightrLocation);
+            }*/
+
+            MapLocation best = leastRubble(rc, options);
+            Direction bestDir = rc.getLocation().directionTo(best);
+
+            if (rc.canMove(bestDir)) {
+                return bestDir;
+            }
+        }
+        if (rc.canMove(dir.rotateLeft().rotateLeft())) {
+            return dir.rotateLeft().rotateLeft();
+        } else if (rc.canMove(dir.rotateRight().rotateRight())) {
+            return dir.rotateRight().rotateRight();
+        } else if (rc.canMove(dir.opposite().rotateLeft())) {
+            return dir.opposite().rotateLeft();
+        } else if (rc.canMove(dir.opposite().rotateRight())) {
+            return dir.opposite().rotateRight();
+        } else if (rc.canMove(dir.opposite())) {
+            return dir.opposite();
+        }
+
+        return Direction.CENTER;
+    }
+
+    public static Direction greedyPathfinding(RobotController rc, MapLocation target) throws GameActionException {
+        Direction dir = rc.getLocation().directionTo(target);
+        return greedyPathfinding(rc, dir);
     }
 
     public static Direction scoutBug(RobotController rc, Direction dir) throws GameActionException {
@@ -236,7 +296,7 @@ public class Pathfinding {
                 if (rc.canMove(attemptDir)) {
                     returnDirection = attemptDir;
                     Data.randDirection = returnDirection;
-                    return advancedPathfinding(rc, returnDirection);
+                    return greedyPathfinding(rc, returnDirection);
                 }
             }
             return Direction.CENTER;
@@ -315,6 +375,6 @@ public class Pathfinding {
             else
                 attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
         }
-        return advancedPathfinding(rc, attemptDir);
+        return greedyPathfinding(rc, attemptDir);
     }
 }

@@ -51,7 +51,7 @@ public class Soldier {
             }
 
             Direction away = rc.getLocation().directionTo(toAttack).opposite();
-            away = Pathfinding.advancedPathfinding(rc, away);
+            away = Pathfinding.greedyPathfinding(rc, away);
             if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE) && rc.canMove(away)) {
                 rc.move(away);
             }
@@ -94,7 +94,7 @@ public class Soldier {
                     }
                 }
 
-                Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
+                Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
                 if (rc.canMove(moveToOptimalLocation)) {
                     rc.move(moveToOptimalLocation);
                 }
@@ -105,7 +105,7 @@ public class Soldier {
             } else {
                 if (closestEnemyArcon != 0) {
                     //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
-                    Direction dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
+                    Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGTOARCON");
@@ -114,7 +114,7 @@ public class Soldier {
                     int closestEnemy = getClosestEnemy(rc);
                     if (closestEnemy != 0) {
                         MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
-                        Direction dir = Pathfinding.advancedPathfinding(rc, closestEnemyLocation);
+                        Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                         }
@@ -164,7 +164,7 @@ public class Soldier {
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
         if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
-            Direction dir = Pathfinding.advancedPathfinding(rc, location);
+            Direction dir = Pathfinding.greedyPathfinding(rc, location);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }

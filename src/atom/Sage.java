@@ -43,7 +43,7 @@ public class Sage {
                 Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
 
                 //Direction dir = Pathfinding.basicBug(rc, toAttack);
-                Direction dir = Pathfinding.advancedPathfinding(rc, toAttack);
+                Direction dir = Pathfinding.greedyPathfinding(rc, toAttack);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
@@ -57,7 +57,7 @@ public class Sage {
 
                 if (closestEnemyArcon != 0) {
                     //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
-                    dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
+                    dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGTOARCON");
@@ -66,7 +66,7 @@ public class Sage {
                     int closestEnemy = Soldier.getClosestEnemy(rc);
                     if (closestEnemy != 0) {
                         MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
-                        dir = Pathfinding.advancedPathfinding(rc, closestEnemyLocation);
+                        dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                         }
