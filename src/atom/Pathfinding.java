@@ -361,6 +361,15 @@ public class Pathfinding {
         MapLocation base = Data.spawnBaseLocation;
         Direction attemptDir = current.directionTo(base).opposite();
 
+        /*MapLocation center = new MapLocation(width / 2, height / 2);
+        if (Data.spawnBaseLocation.distanceSquaredTo(center) < Math.min(height / 4, width / 4)) {
+            Direction awayCenter = Data.spawnBaseLocation.directionTo(center).opposite();
+            if (attemptDir == awayCenter || attemptDir == awayCenter.rotateLeft()
+                    || attemptDir == awayCenter.rotateRight()) {
+                attemptDir = attemptDir.opposite();
+            }
+        }*/
+
         int distThreshold = Integer.MAX_VALUE;
         if (attemptDir == Direction.NORTH || attemptDir == Direction.SOUTH) {
             distThreshold = rc.getMapHeight() * 3 / 5;

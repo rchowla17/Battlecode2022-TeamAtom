@@ -17,18 +17,6 @@ public class Miner {
 
         UnitCounter.addMiner(rc);
 
-        //checks nearby possible metals and removes them if they are no longer there
-        /*int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
-        MapLocation closestPossibleMetalLocation = null;
-        if (closestPossibleMetal != 0) {
-            closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
-            if (rc.canSenseLocation(closestPossibleMetalLocation)) {
-                if (rc.senseLead(closestPossibleMetalLocation) < 30) {
-                    Communication.removeMetalLocation(closestPossibleMetal, rc);
-                }
-            }
-        }*/
-
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
@@ -109,7 +97,7 @@ public class Miner {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                         if (target.type.equals("LEAD")) {
-                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) >= 3) {
+                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
                                 rc.mineLead(mineLocation);
                                 //rc.setIndicatorString("MININGGOLD");
                             }
@@ -157,24 +145,7 @@ public class Miner {
                 }
             }
         } else {
-            //moves towards a location in the metallocation array if it exists
             Direction dir = null;
-            /*
-            if (closestPossibleMetal != 0) {
-                //dir = Pathfinding.basicBug(rc, closestMetalLocation);
-                dir = Pathfinding.advancedPathfinding(rc, closestPossibleMetalLocation);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                }
-            } else {
-                dir = Pathfinding.wander(rc);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                    //rc.setIndicatorString("MOVINGRAND");
-                    Data.randCounter++;
-                }
-            }*/
-
             dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
@@ -229,13 +200,6 @@ public class Miner {
                 distanceToTarget = distanceToLoc;
             }
         }
-
-        /*if (target != null) {
-            String x = String.format("%02d", target.location.x);
-            String y = String.format("%02d", target.location.y);
-            String locationS = x + y;
-            Communication.addMetalLocation(rc, Integer.parseInt(locationS));
-        }*/
 
         return target;
     }

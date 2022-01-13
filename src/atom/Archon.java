@@ -9,7 +9,7 @@ public class Archon {
     static ArrayList<RobotType> spawnOrder = new ArrayList<RobotType>();
     static int spawnOrderCounter = 0;
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
-    static int archonNumber = 1;
+    static int ogArchonNumber = 0;
 
     static boolean seenEnemy = false;
 
@@ -25,9 +25,6 @@ public class Archon {
         //random = (int) (Math.random() * 3);
         //rc.writeSharedArray(60, random);
 
-        archonNumber = rc.getArchonCount();
-
-        //System.out.println("Miners" + UnitCounter.getMiners(rc) + "Soldiers" + UnitCounter.getSoldiers(rc));
         UnitCounter.reset(rc);
 
         if (rc.getRoundNum() % 3 == 0) {
@@ -45,8 +42,9 @@ public class Archon {
 
         //initial spawn logic
         //System.out.println(Communication.getArchonSpawnIndex(rc));
-
-        if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()) {
+        //!checkSpawnNearEnemy(rc)
+        if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
+                || rc.getArchonCount() != ogArchonNumber) {
             while (startSpawn <= 4) {
                 gameStartSequence(rc);
             }
@@ -55,22 +53,15 @@ public class Archon {
     }
 
     public static void normalSpawnSequence(RobotController rc) throws GameActionException {
-        /*if (UnitCounter.getMiners(rc) > 100 && spawnOrder.size() == 3) {
+        if (UnitCounter.getMiners(rc) > 100 && spawnOrder.size() == 3) {
             spawnOrder.add(RobotType.SOLDIER);
         } else if (UnitCounter.getMiners(rc) < 80 && spawnOrder.size() == 4) {
             spawnOrder.remove(RobotType.SOLDIER);
-        }*/
+        }
 
-        //System.out.println(spawnOrderCounter);
         RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
         Direction spawnDir = openSpawnLocation(rc, spawn);
 
-        /*if (!seenEnemy) {
-            if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
-                rc.buildRobot(RobotType.MINER, spawnDir);
-                Communication.increaseArchonSpawnIndex(rc);
-            }
-        } else {*/
         switch (spawn) {
             case SOLDIER:
                 if (rc.getTeamGoldAmount(rc.getTeam()) >= 20) {
@@ -98,6 +89,7 @@ public class Archon {
 
     //initial starting logic
     public static void gameStartSequence(RobotController rc) throws GameActionException {
+        //checkSpawnNearEnemy(rc);
         Direction dir = openSpawnLocation(rc, RobotType.MINER);
         if (rc.canBuildRobot(RobotType.MINER, dir)) {
             rc.buildRobot(RobotType.MINER, dir);
@@ -109,6 +101,7 @@ public class Archon {
     //unit initilization 
     public static void init(RobotController rc) throws GameActionException {
         Communication.addArchonId(rc, rc.getID());
+        ogArchonNumber = rc.getArchonCount();
 
         spawnOrder.add(RobotType.SOLDIER);
         spawnOrder.add(RobotType.SOLDIER);
@@ -148,4 +141,30 @@ public class Archon {
             spawnOrderCounter++;
         }
     }
+
+    /*public static void checkSpawnNearEnemy(RobotController rc) throws GameActionException {
+        RobotInfo[] robots = rc.senseNearbyRobots(rc.getType().visionRadiusSquared, rc.getTeam().opponent());
+        for (int i = 0; i < robots.length; i++) {
+            RobotInfo robot = robots[i];
+            if (robot.getType() == RobotType.ARCHON) {
+                Direction towardsEnemy = rc.getLocation().directionTo(robot.getLocation());
+                if (rc.canBuildRobot(RobotType.SOLDIER, towardsEnemy)) {
+                    rc.buildRobot(RobotType.SOLDIER, towardsEnemy);
+                    increaseSpawnOrderCounter();
+                } else if (rc.canBuildRobot(RobotType.SOLDIER, towardsEnemy.rotateLeft())) {
+                    rc.buildRobot(RobotType.SOLDIER, towardsEnemy.rotateLeft());
+                    increaseSpawnOrderCounter();
+                } else if (rc.canBuildRobot(RobotType.SOLDIER, towardsEnemy.rotateRight())) {
+                    rc.buildRobot(RobotType.SOLDIER, towardsEnemy.rotateRight());
+                    increaseSpawnOrderCounter();
+                } else if (rc.canBuildRobot(RobotType.SOLDIER, towardsEnemy.rotateLeft().rotateLeft())) {
+                    rc.buildRobot(RobotType.SOLDIER, towardsEnemy.rotateLeft().rotateLeft());
+                    increaseSpawnOrderCounter();
+                } else if (rc.canBuildRobot(RobotType.SOLDIER, towardsEnemy.rotateRight().rotateRight())) {
+                    rc.buildRobot(RobotType.SOLDIER, towardsEnemy.rotateRight().rotateRight());
+                    increaseSpawnOrderCounter();
+                }
+            }
+        }
+    }*/
 }
