@@ -85,7 +85,7 @@ public strictfp class RobotPlayer {
                 }
                 if (closestFriendly != null) {
                     Direction dir = rc.getLocation().directionTo(closestFriendly.getLocation()).opposite();
-                    dir = Pathfinding.advancedPathfinding(rc, dir);
+                    dir = Pathfinding.greedyPathfinding(rc, dir);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }

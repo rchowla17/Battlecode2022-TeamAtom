@@ -50,11 +50,19 @@ public class Soldier {
                 rc.attack(toAttack);
             }
 
-            Direction away = rc.getLocation().directionTo(toAttack).opposite();
-            away = Pathfinding.greedyPathfinding(rc, away);
-            if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE) && rc.canMove(away)) {
-                rc.move(away);
+            if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE)
+                    && rc.getLocation().distanceSquaredTo(target.location) < actionRadius) {
+                Direction away = rc.getLocation().directionTo(toAttack).opposite();
+                away = Pathfinding.greedyPathfinding(rc, away);
+                if (rc.canMove(away)) {
+                    rc.move(away);
+                }
             }
+
+            /*Direction toTarget = Pathfinding.greedyPathfinding(rc, toAttack);
+            if (rc.canMove(toTarget)) {
+                rc.move(toTarget);
+            }*/
         } else {
             int visionRadius = rc.getType().visionRadiusSquared;
             RobotInfo[] enemiesInVisionRange = rc.senseNearbyRobots(visionRadius, opponent);
@@ -82,9 +90,9 @@ public class Soldier {
                         rc);
 
                 MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
-                        rc.getType().actionRadiusSquared);
-                MapLocation leastRubbleLocation = rc.getLocation();
-                int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
+                        actionRadius);
+                MapLocation leastRubbleLocation = null;
+                int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
 
                 for (int i = 0; i < surroundings.length; i++) {
                     if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
@@ -94,11 +102,12 @@ public class Soldier {
                     }
                 }
 
-                Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                if (rc.canMove(moveToOptimalLocation)) {
-                    rc.move(moveToOptimalLocation);
+                if (leastRubbleLocation != null) {
+                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
+                    if (rc.canMove(moveToOptimalLocation)) {
+                        rc.move(moveToOptimalLocation);
+                    }
                 }
-
                 if (rc.canAttack(toAttack)) {
                     rc.attack(toAttack);
                 }

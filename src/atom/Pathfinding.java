@@ -138,7 +138,7 @@ public class Pathfinding {
     public static MapLocation leastRubble(RobotController rc, ArrayList<MapLocation> options)
             throws GameActionException {
         int minRubble = Integer.MAX_VALUE;
-        MapLocation out = rc.getLocation();
+        MapLocation out = null;
 
         for (MapLocation ml : options) {
             if ((rc.senseRubble(ml) < minRubble)) {
@@ -182,10 +182,11 @@ public class Pathfinding {
             }*/
 
             MapLocation best = leastRubble(rc, options);
-            Direction bestDir = rc.getLocation().directionTo(best);
-
-            if (rc.canMove(bestDir)) {
-                return bestDir;
+            if (best != null) {
+                Direction bestDir = rc.getLocation().directionTo(best);
+                if (rc.canMove(bestDir)) {
+                    return bestDir;
+                }
             }
         }
         if (rc.canMove(dir.rotateLeft().rotateLeft())) {
