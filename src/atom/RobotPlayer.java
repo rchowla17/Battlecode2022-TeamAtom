@@ -31,6 +31,32 @@ public strictfp class RobotPlayer {
 
         while (true) {
             try {
+                AnomalyScheduleEntry[] anomalySchedule = rc.getAnomalySchedule();
+                for (int i = 0; i < anomalySchedule.length; i++) {
+                    if (anomalySchedule[i].anomalyType == AnomalyType.CHARGE
+                            && anomalySchedule[i].roundNumber - rc.getRoundNum() >= 0
+                            && anomalySchedule[i].roundNumber - rc.getRoundNum() <= 5) {
+                        //System.out.println("CHARGE");
+                        RobotInfo[] nearbyFriendlies = rc.senseNearbyRobots(rc.getType().visionRadiusSquared,
+                                rc.getTeam());
+
+                        RobotInfo closestFriendly = null;
+                        int distance = Integer.MAX_VALUE;
+                        for (int j = 0; j < nearbyFriendlies.length; j++) {
+                            if (rc.getLocation().distanceSquaredTo(nearbyFriendlies[j].getLocation()) < distance) {
+                                closestFriendly = nearbyFriendlies[j];
+                                distance = rc.getLocation().distanceSquaredTo(nearbyFriendlies[j].getLocation());
+                            }
+                        }
+                        if (closestFriendly != null) {
+                            Direction dir = rc.getLocation().directionTo(closestFriendly.getLocation()).opposite();
+                            dir = Pathfinding.advancedPathfinding(rc, dir);
+                            if (rc.canMove(dir)) {
+                                rc.move(dir);
+                            }
+                        }
+                    }
+                }
                 switch (type) {
                     case ARCHON:
                         Archon.runArchon(rc);

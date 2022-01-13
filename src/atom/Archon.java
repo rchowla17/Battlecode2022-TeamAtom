@@ -11,7 +11,7 @@ public class Archon {
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
     static int archonNumber = 1;
 
-    //static boolean seenEnemy = false;
+    static boolean seenEnemy = false;
 
     /* Archon Logic:
         First 9 things build will be miners in each of the different directions
@@ -45,6 +45,7 @@ public class Archon {
 
         //initial spawn logic
         //System.out.println(Communication.getArchonSpawnIndex(rc));
+
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()) {
             while (startSpawn <= 4) {
                 gameStartSequence(rc);

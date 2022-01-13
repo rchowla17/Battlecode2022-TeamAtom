@@ -1,4 +1,4 @@
-package atomAlpha;
+package atomV1d2;
 
 import battlecode.common.*;
 import java.util.*;
@@ -119,11 +119,17 @@ public class Communication {
     }
 
     static int getArchonSpawnIndex(RobotController rc) throws GameActionException {
+        //return rc.readSharedArray(54) % rc.getArchonCount();
         return rc.readSharedArray(54) % rc.getArchonCount();
     }
 
     static void increaseArchonSpawnIndex(RobotController rc) throws GameActionException {
-        rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
+        if (rc.readSharedArray(54) == rc.getArchonCount()) {
+            rc.writeSharedArray(54, 0);
+        } else {
+            rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
+        }
+
     }
 
     static int[] getArchonIds(RobotController rc) throws GameActionException {

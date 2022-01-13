@@ -1,4 +1,4 @@
-package atomV1d1;
+package atomV1d2;
 
 import battlecode.common.*;
 import java.util.*;
@@ -36,6 +36,7 @@ public class Miner {
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    dir = Pathfinding.advancedPathfinding(rc, dir);
                     //MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
                     //Direction dir = rc.getLocation().directionTo(center);
                     if (rc.canMove(dir)) {
@@ -52,6 +53,7 @@ public class Miner {
                     Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
                     //run from enemy attackers
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    dir = Pathfinding.advancedPathfinding(rc, dir);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
@@ -65,7 +67,9 @@ public class Miner {
         }
 
         //tries to stop miners from flocking
-        if (nearbyMinerCount > 2) {
+        int mapArea = rc.getMapWidth() * rc.getMapHeight();
+
+        if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
             Direction dir = null;
             dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
@@ -86,11 +90,26 @@ public class Miner {
         if (distanceToTarget != -1) {
             //if target is within mining distance
             if (distanceToTarget <= 2) {
+                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location, 2);
+                MapLocation leastRubbleLocation = rc.getLocation();
+                int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
+                for (int i = 0; i < surroundings.length; i++) {
+                    if (!rc.canSenseRobotAtLocation(surroundings[i])
+                            && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
+                        leastRubbleLocation = surroundings[i];
+                        rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
+                    }
+                }
+                Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
+                if (rc.canMove(moveToOptimalLocation)) {
+                    rc.move(moveToOptimalLocation);
+                }
+
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                         if (target.type.equals("LEAD")) {
-                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 3) {
+                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) >= 3) {
                                 rc.mineLead(mineLocation);
                                 //rc.setIndicatorString("MININGGOLD");
                             }
@@ -105,7 +124,7 @@ public class Miner {
                 }
 
                 //if there is cooldown left after mining, the unit will try to move to another target
-                if (rc.isActionReady()) {
+                if (rc.isMovementReady()) {
                     metalLocations = senseNearbyMetals(rc);
                     target = findNearestMetalLocation(metalLocations, rc);
 
@@ -168,7 +187,7 @@ public class Miner {
     static ArrayList<MetalLocation> senseNearbyMetals(RobotController rc) throws GameActionException {
         int vision = rc.getType().visionRadiusSquared;
         ArrayList<MetalLocation> metalLocations = new ArrayList<MetalLocation>();
-        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 5);
+        MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 3);
         for (int i = 0; i < locations.length; i++) {
             MapLocation senseLoc = locations[i];
             int amnt = rc.senseLead(senseLoc);

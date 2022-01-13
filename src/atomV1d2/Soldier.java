@@ -1,4 +1,4 @@
-package atomV1d1;
+package atomV1d2;
 
 import battlecode.common.*;
 import java.util.*;
@@ -55,6 +55,11 @@ public class Soldier {
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
             }
+            Direction away = rc.getLocation().directionTo(toAttack).opposite();
+            away = Pathfinding.advancedPathfinding(rc, away);
+            if (rc.canMove(away)) {
+                rc.move(away);
+            }
         } else {
             int visionRadius = rc.getType().visionRadiusSquared;
             enemies = rc.senseNearbyRobots(visionRadius, opponent);
@@ -86,11 +91,32 @@ public class Soldier {
                 String locationS = x + y;
                 Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
 
+                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
+                        rc.getType().actionRadiusSquared);
+                MapLocation leastRubbleLocation = rc.getLocation();
+                int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
+                for (int i = 0; i < surroundings.length; i++) {
+                    if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
+                            && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
+                        leastRubbleLocation = surroundings[i];
+                        rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
+                    }
+                }
+                Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
+                if (rc.canMove(moveToOptimalLocation)) {
+                    rc.move(moveToOptimalLocation);
+                }
+
+                if (rc.canAttack(toAttack)) {
+                    rc.attack(toAttack);
+                }
+
                 //Direction dir = Pathfinding.basicBug(rc, toAttack);
+                /*
                 Direction dir = Pathfinding.advancedPathfinding(rc, toAttack);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
-                }
+                }*/
             } else {
                 Direction dir = null;
                 if (closestEnemyArcon != 0) {

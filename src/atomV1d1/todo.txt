@@ -1,9 +1,0 @@
-enemy base prediction
-
-miner/soldier unit count balance based on
-    round number, resource availibility, income gain per round
-
-pathfinding
-
-take into account multiple enemies when running away - miner class 46
-
