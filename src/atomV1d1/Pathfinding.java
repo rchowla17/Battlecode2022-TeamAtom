@@ -1,4 +1,4 @@
-package atom;
+package atomV1d1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -129,14 +129,10 @@ public class Pathfinding {
                 }
                 Direction leftDir = attemptDir.rotateLeft();
                 Direction rightDir = attemptDir.rotateRight();
-                Direction leftlDir = attemptDir.rotateLeft().rotateLeft();
-                Direction rightrDir = attemptDir.rotateRight().rotateRight();
 
                 MapLocation frontLoc = rc.getLocation().add(attemptDir);
                 MapLocation leftLocation = rc.getLocation().add(leftDir);
                 MapLocation rightLocation = rc.getLocation().add(rightDir);
-                MapLocation leftlLocation = rc.getLocation().add(leftlDir);
-                MapLocation rightrLocation = rc.getLocation().add(rightrDir);
 
                 ArrayList<MapLocation> options = new ArrayList<MapLocation>();
                 if (rc.canSenseLocation(frontLoc)) {
@@ -148,13 +144,6 @@ public class Pathfinding {
                 if (rc.canSenseLocation(rightLocation)) {
                     options.add(rightLocation);
                 }
-                /*
-                if (rc.canSenseLocation(rightrLocation)) {
-                    options.add(rightrLocation);
-                }
-                if (rc.canSenseLocation(leftlLocation)) {
-                    options.add(leftlLocation);
-                }*/
 
                 MapLocation best = leastRubble(rc, options);
                 attemptDir = rc.getLocation().directionTo(best);
@@ -372,7 +361,6 @@ public class Pathfinding {
         }
 
         if (Math.sqrt(rc.getLocation().distanceSquaredTo(Data.spawnBaseLocation)) > distThreshold) {
-            rc.setIndicatorString("wanderfree");
             return randomDir(rc);
         }
 
@@ -385,22 +373,22 @@ public class Pathfinding {
 
         //attemptDir = advancedPathfinding(rc, attemptDir);
 
-        if (current.x == 0) {
+        if (current.x <= 2) {
             if (current.y > base.y)
                 attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
             else
                 attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
-        } else if (current.x == width - 1) {
+        } else if (current.x >= width - 3) {
             if (current.y < base.y)
                 attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
             else
                 attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
-        } else if (current.y == 0) {
+        } else if (current.y <= 2) {
             if (current.x < base.x)
                 attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
             else
                 attemptDir = attemptDir.rotateLeft().rotateLeft().rotateLeft();
-        } else if (current.x == height - 1) {
+        } else if (current.x >= height - 3) {
             if (current.x > base.x)
                 attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
             else
