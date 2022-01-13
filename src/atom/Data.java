@@ -14,7 +14,6 @@ public class Data {
             Direction.NORTHWEST,
             Direction.NORTHEAST,
     };
-    static final Random rng = new Random(6147);
 
     static int randCounter = 0;
     static Direction randDirection = Direction.CENTER;

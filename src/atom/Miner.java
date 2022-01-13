@@ -8,14 +8,15 @@ public class Miner {
     static int randomMoves = 0;
 
     static void runMiner(RobotController rc) throws GameActionException {
-        rc.setIndicatorString("");
         currentLoc = rc.getLocation();
-
         Team opponent = rc.getTeam().opponent();
+
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
         int nearbyMinerCount = 0;
 
         UnitCounter.addMiner(rc);
+
+        rc.setIndicatorString("");
 
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
@@ -23,33 +24,24 @@ public class Miner {
                 //stops unit from blocking spawn zone
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
-                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
-                    dir = Pathfinding.advancedPathfinding(rc, dir);
-                    //MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
-                    //Direction dir = rc.getLocation().directionTo(center);
+                    Direction dir = Pathfinding.wander(rc);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
+                        //rc.setIndicatorString("WANDER");
                     }
                 } else if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
-                    nearbyMinerCount++; //nearby miner counter
+                    nearbyMinerCount++;
                 } else if (robot.getTeam().equals(opponent) && robot.getType().equals(RobotType.SOLDIER)
                         || robot.getType().equals(RobotType.SAGE)) {
 
-                    String x = String.format("%02d", robot.getLocation().x);
-                    String y = String.format("%02d", robot.getLocation().y);
-                    String locationS = x + y;
-                    Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
-                    //run from enemy attackers
+                    Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     dir = Pathfinding.advancedPathfinding(rc, dir);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
                 } else if (robot.getTeam().equals(opponent)) {
-                    String x = String.format("%02d", robot.getLocation().x);
-                    String y = String.format("%02d", robot.getLocation().y);
-                    String locationS = x + y;
-                    Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
+                    Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
                 }
             }
         }
@@ -63,7 +55,6 @@ public class Miner {
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 rc.setIndicatorString("WANDERFROMFLOCK");
-                Data.randCounter++;
             }
         }
 
@@ -71,23 +62,25 @@ public class Miner {
 
         MetalLocation target = findNearestMetalLocation(metalLocations, rc);
         int distanceToTarget = -1;
+
         if (target != null) {
             distanceToTarget = currentLoc.distanceSquaredTo(target.location);
-        }
-
-        if (distanceToTarget != -1) {
             //if target is within mining distance
             if (distanceToTarget <= 2) {
-                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location, 2);
+                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
+                        RobotType.MINER.actionRadiusSquared);
+
                 MapLocation leastRubbleLocation = rc.getLocation();
                 int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
+
                 for (int i = 0; i < surroundings.length; i++) {
-                    if (!rc.canSenseRobotAtLocation(surroundings[i])
+                    if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
                             && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
                         leastRubbleLocation = surroundings[i];
                         rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
                     }
                 }
+
                 Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
                 if (rc.canMove(moveToOptimalLocation)) {
                     rc.move(moveToOptimalLocation);
@@ -99,23 +92,22 @@ public class Miner {
                         if (target.type.equals("LEAD")) {
                             while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
                                 rc.mineLead(mineLocation);
-                                //rc.setIndicatorString("MININGGOLD");
                             }
                         }
                         if (target.type.equals("GOLD")) {
                             while (rc.canMineGold(mineLocation)) {
                                 rc.mineGold(mineLocation);
-                                //rc.setIndicatorString("MININGGOLD");
                             }
                         }
                     }
                 }
 
                 //if there is cooldown left after mining, the unit will try to move to another target
+                /*
                 if (rc.isMovementReady()) {
                     metalLocations = senseNearbyMetals(rc);
                     target = findNearestMetalLocation(metalLocations, rc);
-
+                
                     Direction dir = null;
                     if (target != null) {
                         //move towards target
@@ -134,23 +126,19 @@ public class Miner {
                             Data.randCounter++;
                         }
                     }
-                }
+                }*/
             } else {
-                Direction dir = null;
-                //dir = Pathfinding.basicBug(rc, target.location);
-                dir = Pathfinding.advancedPathfinding(rc, target.location);
+                Direction dir = Pathfinding.advancedPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
-                    rc.setIndicatorString("MOVINGTOTARGET");
+                    //rc.setIndicatorString("MOVINGTOTARGET");
                 }
             }
         } else {
-            Direction dir = null;
-            dir = Pathfinding.wander(rc);
+            Direction dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                rc.setIndicatorString("WANDER");
-                Data.randCounter++;
+                //rc.setIndicatorString("WANDER");
             }
         }
     }

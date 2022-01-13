@@ -11,13 +11,8 @@ public class Archon {
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
     static int ogArchonNumber = 0;
 
-    static boolean seenEnemy = false;
+    //static boolean seenEnemy = false;
 
-    /* Archon Logic:
-        First 9 things build will be miners in each of the different directions
-        After that, every time we run Archon, we will alternate building Miners and Soldiers
-        in the first available direction
-    */
     static void runArchon(RobotController rc) throws GameActionException {
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 8);
@@ -40,15 +35,21 @@ public class Archon {
             }
         }*/
 
-        //initial spawn logic
-        //System.out.println(Communication.getArchonSpawnIndex(rc));
-        //!checkSpawnNearEnemy(rc)
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
                 || rc.getArchonCount() != ogArchonNumber) {
             while (startSpawn <= 4) {
                 gameStartSequence(rc);
             }
             normalSpawnSequence(rc);
+        }
+    }
+
+    public static void gameStartSequence(RobotController rc) throws GameActionException {
+        Direction dir = openSpawnLocation(rc, RobotType.MINER);
+        if (rc.canBuildRobot(RobotType.MINER, dir)) {
+            rc.buildRobot(RobotType.MINER, dir);
+            Communication.increaseArchonSpawnIndex(rc);
+            startSpawn++;
         }
     }
 
@@ -59,12 +60,12 @@ public class Archon {
             spawnOrder.remove(RobotType.SOLDIER);
         }
 
-        RobotType spawn = spawnOrder.get(spawnOrderCounter % spawnOrder.size());
+        RobotType spawn = spawnOrder.get(spawnOrderCounter);
         Direction spawnDir = openSpawnLocation(rc, spawn);
 
         switch (spawn) {
             case SOLDIER:
-                if (rc.getTeamGoldAmount(rc.getTeam()) >= 20) {
+                if (rc.getTeamGoldAmount(rc.getTeam()) >= RobotType.SAGE.buildCostGold) {
                     if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
                         rc.buildRobot(RobotType.SAGE, spawnDir);
                         Communication.increaseArchonSpawnIndex(rc);
@@ -84,39 +85,6 @@ public class Archon {
                 }
                 break;
         }
-        //}
-    }
-
-    //initial starting logic
-    public static void gameStartSequence(RobotController rc) throws GameActionException {
-        //checkSpawnNearEnemy(rc);
-        Direction dir = openSpawnLocation(rc, RobotType.MINER);
-        if (rc.canBuildRobot(RobotType.MINER, dir)) {
-            rc.buildRobot(RobotType.MINER, dir);
-            Communication.increaseArchonSpawnIndex(rc);
-            startSpawn++;
-        }
-    }
-
-    //unit initilization 
-    public static void init(RobotController rc) throws GameActionException {
-        Communication.addArchonId(rc, rc.getID());
-        ogArchonNumber = rc.getArchonCount();
-
-        spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.SOLDIER);
-        spawnOrder.add(RobotType.MINER);
-
-        MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
-        Direction dirToCenter = rc.getLocation().directionTo(center);
-        spawnDirections.add(dirToCenter);
-        spawnDirections.add(dirToCenter.rotateLeft());
-        spawnDirections.add(dirToCenter.rotateRight());
-        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft());
-        spawnDirections.add(dirToCenter.rotateRight().rotateRight());
-        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft().rotateLeft());
-        spawnDirections.add(dirToCenter.rotateRight().rotateRight().rotateRight());
-        spawnDirections.add(dirToCenter.opposite());
     }
 
     //returns open spawn direction
@@ -135,7 +103,7 @@ public class Archon {
     }
 
     public static void increaseSpawnOrderCounter() {
-        if (spawnOrderCounter == spawnOrder.size()) {
+        if (spawnOrderCounter == spawnOrder.size() - 1) {
             spawnOrderCounter = 0;
         } else {
             spawnOrderCounter++;
@@ -167,4 +135,24 @@ public class Archon {
             }
         }
     }*/
+
+    public static void init(RobotController rc) throws GameActionException {
+        Communication.addArchonId(rc, rc.getID());
+        ogArchonNumber = rc.getArchonCount();
+
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.SOLDIER);
+        spawnOrder.add(RobotType.MINER);
+
+        MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+        Direction dirToCenter = rc.getLocation().directionTo(center);
+        spawnDirections.add(dirToCenter);
+        spawnDirections.add(dirToCenter.rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight());
+        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight().rotateRight());
+        spawnDirections.add(dirToCenter.rotateLeft().rotateLeft().rotateLeft());
+        spawnDirections.add(dirToCenter.rotateRight().rotateRight().rotateRight());
+        spawnDirections.add(dirToCenter.opposite());
+    }
 }

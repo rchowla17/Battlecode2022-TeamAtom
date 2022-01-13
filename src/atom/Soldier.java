@@ -7,7 +7,8 @@ public class Soldier {
     static void runSoldier(RobotController rc) throws GameActionException {
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(actionRadius, opponent);
+
+        RobotInfo[] enemiesInActionRadius = rc.senseNearbyRobots(actionRadius, opponent);
         RobotInfo target = null;
         int targetHealth = Integer.MAX_VALUE;
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
@@ -26,75 +27,65 @@ public class Soldier {
         }
 
         // Try to attack someone
-        if (enemies.length > 0) {
-            for (int i = 0; i < enemies.length; i++) {
-                RobotInfo enemy = enemies[i];
+        if (enemiesInActionRadius.length > 0) {
+            for (int i = 0; i < enemiesInActionRadius.length; i++) {
+                RobotInfo enemy = enemiesInActionRadius[i];
                 if (enemy.getType().equals(RobotType.ARCHON)) {
-                    String x = String.format("%02d", enemy.getLocation().x);
-                    String y = String.format("%02d", enemy.getLocation().y);
-                    String locationS = x + y;
-                    //rc.setIndicatorString(locationS);
-                    Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+                    Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(enemy.getLocation()), rc);
                     swarmArcon(rc, enemy.getLocation());
                 }
 
-                int enemyValue = Data.determineEnemyValue(enemies[i]);
-                if (enemyValue <= targetValue && enemies[i].health < targetHealth) {
-                    target = enemies[i];
-                    targetHealth = enemies[i].health;
+                int enemyValue = Data.determineEnemyValue(enemiesInActionRadius[i]);
+                if (enemyValue <= targetValue && enemiesInActionRadius[i].health < targetHealth) {
+                    target = enemiesInActionRadius[i];
+                    targetHealth = enemiesInActionRadius[i].health;
                     targetValue = enemyValue;
                 }
             }
-            MapLocation toAttack = target.location;
 
-            String x = String.format("%02d", target.location.x);
-            String y = String.format("%02d", target.location.y);
-            String locationS = x + y;
-            Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
+            MapLocation toAttack = target.location;
+            Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(target.location));
 
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
             }
+
             Direction away = rc.getLocation().directionTo(toAttack).opposite();
             away = Pathfinding.advancedPathfinding(rc, away);
-            if (rc.canMove(away)) {
+            if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE) && rc.canMove(away)) {
                 rc.move(away);
             }
         } else {
             int visionRadius = rc.getType().visionRadiusSquared;
-            enemies = rc.senseNearbyRobots(visionRadius, opponent);
+            RobotInfo[] enemiesInVisionRange = rc.senseNearbyRobots(visionRadius, opponent);
             int targetDistance = Integer.MAX_VALUE;
 
-            if (enemies.length > 0) {
-                for (int i = 0; i < enemies.length; i++) {
-                    RobotInfo enemy = enemies[i];
+            if (enemiesInVisionRange.length > 0) {
+                for (int i = 0; i < enemiesInVisionRange.length; i++) {
+                    RobotInfo enemy = enemiesInVisionRange[i];
                     if (enemy.getType().equals(RobotType.ARCHON)) {
-                        String x = String.format("%02d", enemy.getLocation().x);
-                        String y = String.format("%02d", enemy.getLocation().y);
-                        String locationS = x + y;
-                        //rc.setIndicatorString(locationS);
-                        Communication.addEnemyArconLocation(Integer.parseInt(locationS), rc);
+                        Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(enemy.getLocation()),
+                                rc);
                     }
 
-                    int enemyValue = Data.determineEnemyValue(enemies[i]);
-                    int distanceToEnemy = rc.getLocation().distanceSquaredTo(enemies[i].getLocation());
+                    int enemyValue = Data.determineEnemyValue(enemiesInVisionRange[i]);
+                    int distanceToEnemy = rc.getLocation().distanceSquaredTo(enemiesInVisionRange[i].getLocation());
                     if (enemyValue <= targetValue && distanceToEnemy < targetDistance) {
-                        target = enemies[i];
+                        target = enemiesInVisionRange[i];
                         targetDistance = distanceToEnemy;
                         targetValue = enemyValue;
                     }
                 }
-                MapLocation toAttack = target.location;
 
-                String x = String.format("%02d", target.location.x);
-                String y = String.format("%02d", target.location.y);
-                String locationS = x + y;
-                Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
+                MapLocation toAttack = target.location;
+                Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(target.getLocation()),
+                        rc);
 
                 MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
                         rc.getType().actionRadiusSquared);
                 MapLocation leastRubbleLocation = rc.getLocation();
                 int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
+
                 for (int i = 0; i < surroundings.length; i++) {
                     if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
                             && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
@@ -102,6 +93,7 @@ public class Soldier {
                         rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
                     }
                 }
+
                 Direction moveToOptimalLocation = Pathfinding.advancedPathfinding(rc, leastRubbleLocation);
                 if (rc.canMove(moveToOptimalLocation)) {
                     rc.move(moveToOptimalLocation);
@@ -110,18 +102,10 @@ public class Soldier {
                 if (rc.canAttack(toAttack)) {
                     rc.attack(toAttack);
                 }
-
-                //Direction dir = Pathfinding.basicBug(rc, toAttack);
-                /*
-                Direction dir = Pathfinding.advancedPathfinding(rc, toAttack);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                }*/
             } else {
-                Direction dir = null;
                 if (closestEnemyArcon != 0) {
                     //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
-                    dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
+                    Direction dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGTOARCON");
@@ -130,16 +114,15 @@ public class Soldier {
                     int closestEnemy = getClosestEnemy(rc);
                     if (closestEnemy != 0) {
                         MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
-                        dir = Pathfinding.advancedPathfinding(rc, closestEnemyLocation);
+                        Direction dir = Pathfinding.advancedPathfinding(rc, closestEnemyLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                         }
                     } else {
-                        dir = Pathfinding.wander(rc);
+                        Direction dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGRAND");
-                            Data.randCounter++;
                         }
                     }
                 }
@@ -152,17 +135,8 @@ public class Soldier {
         int closestArconLocation = 0;
         int distanceSquaredToClosest = Integer.MAX_VALUE;
         for (int i = 0; i < enemyArconLocations.length; i++) {
-            if (!(enemyArconLocations[i] == 0)) {
-                String locationS = Integer.toString(enemyArconLocations[i]);
-                int x = 0, y = 0;
-                if (locationS.length() == 3) {
-                    x = Integer.parseInt(locationS.substring(0, 1));
-                    y = Integer.parseInt(locationS.substring(1));
-                } else if (locationS.length() == 4) {
-                    x = Integer.parseInt(locationS.substring(0, 2));
-                    y = Integer.parseInt(locationS.substring(2));
-                }
-                MapLocation location = new MapLocation(x, y);
+            if (enemyArconLocations[i] != 0) {
+                MapLocation location = Communication.convertIntToMapLocation(enemyArconLocations[i]);
                 if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
                     closestArconLocation = enemyArconLocations[i];
                     distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
@@ -177,17 +151,8 @@ public class Soldier {
         int closestEnemyLocation = 0;
         int distanceSquaredToClosest = Integer.MAX_VALUE;
         for (int i = 0; i < enemyLocations.length; i++) {
-            if (!(enemyLocations[i] == 0)) {
-                String locationS = Integer.toString(enemyLocations[i]);
-                int x = 0, y = 0;
-                if (locationS.length() == 3) {
-                    x = Integer.parseInt(locationS.substring(0, 1));
-                    y = Integer.parseInt(locationS.substring(1));
-                } else if (locationS.length() == 4) {
-                    x = Integer.parseInt(locationS.substring(0, 2));
-                    y = Integer.parseInt(locationS.substring(2));
-                }
-                MapLocation location = new MapLocation(x, y);
+            if (enemyLocations[i] != 0) {
+                MapLocation location = Communication.convertIntToMapLocation(enemyLocations[i]);
                 if (rc.getLocation().distanceSquaredTo(location) < distanceSquaredToClosest) {
                     closestEnemyLocation = enemyLocations[i];
                     distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(location);
@@ -199,7 +164,6 @@ public class Soldier {
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
         if (!(rc.getLocation().distanceSquaredTo(location) <= 2)) {
-            //Direction dir = Pathfinding.basicBug(rc, location);
             Direction dir = Pathfinding.advancedPathfinding(rc, location);
             if (rc.canMove(dir)) {
                 rc.move(dir);

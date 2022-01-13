@@ -7,9 +7,10 @@ public class Sage {
     static void runSage(RobotController rc) throws GameActionException {
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
+
         RobotInfo[] enemies = rc.senseNearbyRobots(actionRadius, opponent);
+
         RobotInfo target = null;
-        int targetHealth = Integer.MAX_VALUE;
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
         //UnitCounter.addSage(rc);

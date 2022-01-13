@@ -119,12 +119,11 @@ public class Communication {
     }
 
     static int getArchonSpawnIndex(RobotController rc) throws GameActionException {
-        //return rc.readSharedArray(54) % rc.getArchonCount();
-        return rc.readSharedArray(54) % rc.getArchonCount();
+        return rc.readSharedArray(54);
     }
 
     static void increaseArchonSpawnIndex(RobotController rc) throws GameActionException {
-        if (rc.readSharedArray(54) == rc.getArchonCount()) {
+        if (rc.readSharedArray(54) == rc.getArchonCount() - 1) {
             rc.writeSharedArray(54, 0);
         } else {
             rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
@@ -149,5 +148,12 @@ public class Communication {
             y = Integer.parseInt(locationS.substring(2));
         }
         return new MapLocation(x, y);
+    }
+
+    static int convertMapLocationToInt(MapLocation location) {
+        String x = String.format("%02d", location.x);
+        String y = String.format("%02d", location.y);
+        String locationS = x + y;
+        return Integer.parseInt(locationS);
     }
 }
