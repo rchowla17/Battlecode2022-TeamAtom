@@ -378,4 +378,16 @@ public class Pathfinding {
         }
         return greedyPathfinding(rc, attemptDir);
     }
+
+    public static Direction escapeEnemies(RobotController rc) throws GameActionException {
+        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent()); //gets all within vision; 100 bytecode
+        MapLocation destination = rc.getLocation();
+        for (RobotInfo r : enemies) {
+            if (r.getType() == RobotType.SOLDIER || r.getType() == RobotType.SAGE) {
+                Direction awayFromEnemy = rc.getLocation().directionTo(r.getLocation()).opposite();
+                destination.add(awayFromEnemy);
+            }
+        }
+        return greedyPathfinding(rc, destination);
+    }
 }
