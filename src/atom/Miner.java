@@ -237,6 +237,37 @@ public class Miner {
         return target;
     }
 
+    static MetalLocation findFarthestMetalLocationFromBase(ArrayList<MetalLocation> metalLocations, RobotController rc)
+            throws GameActionException {
+        MetalLocation target = null;
+        int distanceToTargetFromBase = 0;
+        boolean foundGold = false;
+
+        for (MetalLocation loc : metalLocations) {
+            String type = loc.type;
+            int distanceToLocFromBase = Data.spawnBaseLocation.distanceSquaredTo(loc.location);
+
+            if (type.equals("GOLD")) {
+                if (!foundGold) {
+                    target = loc;
+                    distanceToTargetFromBase = distanceToLocFromBase;
+                    foundGold = true;
+                } else {
+                    if (distanceToLocFromBase > distanceToTargetFromBase) {
+                        target = loc;
+                        distanceToTargetFromBase = distanceToLocFromBase;
+                    }
+                }
+            }
+            if (distanceToLocFromBase > distanceToTargetFromBase && !foundGold) {
+                target = loc;
+                distanceToTargetFromBase = distanceToLocFromBase;
+            }
+        }
+
+        return target;
+    }
+
     static int getClosestPossibleMetalLocation(RobotController rc) throws GameActionException {
         int[] metalLocations = Communication.getMetalLocations(rc);
         int closestMetalLocation = 0;

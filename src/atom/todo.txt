@@ -1,4 +1,5 @@
 new explore logic
+    miners go towards lead, only if it face away from home base
 
 miner/soldier unit count balance based on
     round number, resource availibility, income gain per round
