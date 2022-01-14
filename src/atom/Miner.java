@@ -35,8 +35,9 @@ public class Miner {
                         || robot.getType().equals(RobotType.SAGE)) {
 
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
-                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
-                    dir = Pathfinding.greedyPathfinding(rc, dir);
+                    //Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    //dir = Pathfinding.greedyPathfinding(rc, dir);
+                    Direction dir = Pathfinding.escapeEnemies(rc);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }

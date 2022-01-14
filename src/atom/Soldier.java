@@ -110,9 +110,10 @@ public class Soldier {
                             }
                         }
                     } else {
-                        MapLocation attackerLocation = target.location;
+                        /*MapLocation attackerLocation = target.location;
                         Direction escapeDir = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(attackerLocation).opposite());
+                                rc.getLocation().directionTo(attackerLocation).opposite());*/
+                        Direction escapeDir = Pathfinding.escapeEnemies(rc);
                         if (rc.canMove(escapeDir)) {
                             rc.move(escapeDir);
                         }
