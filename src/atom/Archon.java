@@ -38,14 +38,11 @@ public class Archon {
         }*/
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
                 || rc.getArchonCount() != ogArchonNumber) {
-            System.out.println(Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)]);
-
             enemyArchonNear = false;
             checkEnemyNear(rc);
 
             if (!enemyArchonNear) {
                 if (startSpawn <= 3) {
-                    //System.out.println("start");
                     gameStartSequence(rc);
                 } else {
                     normalSpawnSequence(rc);
@@ -60,7 +57,6 @@ public class Archon {
         } else {
             Direction dir = openSpawnLocation(rc, RobotType.MINER);
             if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                //System.out.println("canbuild");
                 rc.buildRobot(RobotType.MINER, dir);
                 Communication.increaseArchonSpawnIndex(rc);
                 startSpawn++;

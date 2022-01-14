@@ -43,15 +43,15 @@ public class Soldier {
                 }
             }
 
-            MapLocation toAttack = target.location;
-            Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(target.location));
+            MapLocation toAttack = target.getLocation();
+            Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(toAttack));
 
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
             }
 
             if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE)
-                    && rc.getLocation().distanceSquaredTo(target.location) < actionRadius) {
+                    && rc.getLocation().distanceSquaredTo(toAttack) < actionRadius) {
                 Direction away = rc.getLocation().directionTo(toAttack).opposite();
                 away = Pathfinding.greedyPathfinding(rc, away);
                 if (rc.canMove(away)) {
@@ -110,7 +110,7 @@ public class Soldier {
                             }
                         }
                     } else {
-                        MapLocation attackerLocation = target.location;
+                        MapLocation attackerLocation = target.getLocation();
                         Direction escapeDir = Pathfinding.greedyPathfinding(rc,
                                 rc.getLocation().directionTo(attackerLocation).opposite());
                         //Direction escapeDir = Pathfinding.escapeEnemies(rc);
@@ -120,17 +120,20 @@ public class Soldier {
                     }
                 }
 
-                MapLocation toAttack = target.location;
+                MapLocation toAttack = target.getLocation();
                 Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(target.getLocation()),
                         rc);
 
-                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
-                        actionRadius);
+                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(toAttack,
+                        actionRadius + 2);
                 MapLocation leastRubbleLocation = null;
                 int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
 
                 for (int i = 0; i < surroundings.length; i++) {
-                    if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
+                    if (rc.canSenseLocation(surroundings[i])
+                            && surroundings[i]
+                                    .distanceSquaredTo(target.getLocation()) <= target.getType().actionRadiusSquared
+                            && !rc.canSenseRobotAtLocation(surroundings[i])
                             && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
                         leastRubbleLocation = surroundings[i];
                         rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
@@ -138,9 +141,29 @@ public class Soldier {
                 }
 
                 if (leastRubbleLocation != null) {
-                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                    if (rc.canMove(moveToOptimalLocation)) {
-                        rc.move(moveToOptimalLocation);
+                    if (rc.canSenseLocation(toAttack) && rc.senseRubble(toAttack) < rubbleAtleastRubbleLocation) {
+                        if (allyAttackersCount != 0) {
+                            RobotInfo nearestAlly = getClosestAlly(rc, alliesInVisionRange);
+                            if (nearestAlly != null) {
+                                Direction escapeDir = Pathfinding.greedyPathfinding(rc, nearestAlly.getLocation());
+                                if (rc.canMove(escapeDir)) {
+                                    rc.move(escapeDir);
+                                }
+                            }
+                        } else {
+                            MapLocation attackerLocation = target.getLocation();
+                            Direction escapeDir = Pathfinding.greedyPathfinding(rc,
+                                    rc.getLocation().directionTo(attackerLocation).opposite());
+                            //Direction escapeDir = Pathfinding.escapeEnemies(rc);
+                            if (rc.canMove(escapeDir)) {
+                                rc.move(escapeDir);
+                            }
+                        }
+                    } else {
+                        Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
+                        if (rc.canMove(moveToOptimalLocation)) {
+                            rc.move(moveToOptimalLocation);
+                        }
                     }
                 }
                 if (rc.canAttack(toAttack)) {

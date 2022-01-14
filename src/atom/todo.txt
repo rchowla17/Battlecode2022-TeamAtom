@@ -3,4 +3,8 @@ new explore logic
 
 spawn logic
 
+soldiers check enemy rubble and health in soldier micro
+
+recode and check for .equals() vs == and .location vs .getLocation()
+
 
