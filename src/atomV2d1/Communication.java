@@ -1,9 +1,13 @@
-package atom;
+package atomV2d1;
 
 import battlecode.common.*;
 import java.util.*;
 
 public class Communication {
+    static void communicateScoutMode(RobotController rc) throws GameActionException {
+        rc.writeSharedArray(63, 1);
+    }
+
     static void setCommArrayIndexToZero(RobotController rc, int index) throws GameActionException {
         rc.writeSharedArray(index, 0);
     }
@@ -131,14 +135,6 @@ public class Communication {
         int[] ids = new int[] { rc.readSharedArray(50), rc.readSharedArray(51), rc.readSharedArray(52),
                 rc.readSharedArray(53) };
         return ids;
-    }
-
-    static void setLastLeadAmnt(RobotController rc, int value) throws GameActionException {
-        rc.writeSharedArray(63, value);
-    }
-
-    static int getLastLeadAmnt(RobotController rc) throws GameActionException {
-        return rc.readSharedArray(63);
     }
 
     static MapLocation convertIntToMapLocation(int location) {

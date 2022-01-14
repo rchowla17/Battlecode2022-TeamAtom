@@ -1,4 +1,4 @@
-package atom;
+package atomV2d1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -70,8 +70,8 @@ public class Miner {
                 MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
                         RobotType.MINER.actionRadiusSquared);
 
-                MapLocation leastRubbleLocation = null;
-                int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
+                MapLocation leastRubbleLocation = rc.getLocation();
+                int rubbleAtleastRubbleLocation = rc.senseRubble(leastRubbleLocation);
 
                 for (int i = 0; i < surroundings.length; i++) {
                     if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
@@ -81,11 +81,9 @@ public class Miner {
                     }
                 }
 
-                if (leastRubbleLocation != null) {
-                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                    if (rc.canMove(moveToOptimalLocation)) {
-                        rc.move(moveToOptimalLocation);
-                    }
+                Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
+                if (rc.canMove(moveToOptimalLocation)) {
+                    rc.move(moveToOptimalLocation);
                 }
 
                 for (int dx = -1; dx <= 1; dx++) {
@@ -130,32 +128,11 @@ public class Miner {
                     }
                 }*/
             } else {
-                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
-                        RobotType.MINER.actionRadiusSquared);
-
-                MapLocation leastRubbleLocation = null;
-                int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
-
-                for (int i = 0; i < surroundings.length; i++) {
-                    if (rc.canSenseLocation(surroundings[i]) && !rc.canSenseRobotAtLocation(surroundings[i])
-                            && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
-                        leastRubbleLocation = surroundings[i];
-                        rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
-                    }
-                }
-
-                if (leastRubbleLocation != null) {
-                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                    if (rc.canMove(moveToOptimalLocation)) {
-                        rc.move(moveToOptimalLocation);
-                    }
-                }
-                /*
                 Direction dir = Pathfinding.greedyPathfinding(rc, target.location);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                     //rc.setIndicatorString("MOVINGTOTARGET");
-                }*/
+                }
             }
         } else {
             Direction dir = Pathfinding.wander(rc);

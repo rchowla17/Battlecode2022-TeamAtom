@@ -3,5 +3,9 @@ new explore logic
 miner/soldier unit count balance based on
     round number, resource availibility, income gain per round
 
+soldiers flee when outnumbers
+
+logic for the situation where bases spawn right next to each other
+
 take into account multiple enemies when running away - miner class 46
 

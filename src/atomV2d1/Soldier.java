@@ -1,4 +1,4 @@
-package atom;
+package atomV2d1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -66,11 +66,7 @@ public class Soldier {
         } else {
             int visionRadius = rc.getType().visionRadiusSquared;
             RobotInfo[] enemiesInVisionRange = rc.senseNearbyRobots(visionRadius, opponent);
-            RobotInfo[] alliesInVisionRange = rc.senseNearbyRobots(visionRadius, rc.getTeam());
             int targetDistance = Integer.MAX_VALUE;
-            int enemyAttackersCount = 0;
-            int allyAttackersCount = 0;
-            boolean nearAllyArchon = false;
 
             if (enemiesInVisionRange.length > 0) {
                 for (int i = 0; i < enemiesInVisionRange.length; i++) {
@@ -78,8 +74,6 @@ public class Soldier {
                     if (enemy.getType().equals(RobotType.ARCHON)) {
                         Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(enemy.getLocation()),
                                 rc);
-                    } else if (enemy.getType() == RobotType.SOLDIER || enemy.getType() == RobotType.SAGE) {
-                        enemyAttackersCount++;
                     }
 
                     int enemyValue = Data.determineEnemyValue(enemiesInVisionRange[i]);
@@ -88,34 +82,6 @@ public class Soldier {
                         target = enemiesInVisionRange[i];
                         targetDistance = distanceToEnemy;
                         targetValue = enemyValue;
-                    }
-                }
-
-                for (int i = 0; i < alliesInVisionRange.length; i++) {
-                    RobotInfo ally = alliesInVisionRange[i];
-                    if (ally.getType() == RobotType.SOLDIER || ally.getType() == RobotType.SAGE) {
-                        allyAttackersCount++;
-                    } else if (ally.getType() == RobotType.ARCHON) {
-                        nearAllyArchon = true;
-                    }
-                }
-
-                if (allyAttackersCount < enemyAttackersCount && !nearAllyArchon) {
-                    if (allyAttackersCount != 0) {
-                        RobotInfo nearestAlly = getClosestAlly(rc, alliesInVisionRange);
-                        if (nearestAlly != null) {
-                            Direction escapeDir = Pathfinding.greedyPathfinding(rc, nearestAlly.getLocation());
-                            if (rc.canMove(escapeDir)) {
-                                rc.move(escapeDir);
-                            }
-                        }
-                    } else {
-                        MapLocation attackerLocation = target.location;
-                        Direction escapeDir = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(attackerLocation).opposite());
-                        if (rc.canMove(escapeDir)) {
-                            rc.move(escapeDir);
-                        }
                     }
                 }
 
@@ -203,20 +169,6 @@ public class Soldier {
             }
         }
         return closestEnemyLocation;
-    }
-
-    static RobotInfo getClosestAlly(RobotController rc, RobotInfo[] allies) throws GameActionException {
-        RobotInfo closestAlly = null;
-        int distanceSquaredToClosest = Integer.MAX_VALUE;
-        for (int i = 0; i < allies.length; i++) {
-            RobotInfo ally = allies[i];
-            if (rc.getLocation().distanceSquaredTo(ally.getLocation()) < distanceSquaredToClosest) {
-                closestAlly = ally;
-                distanceSquaredToClosest = rc.getLocation().distanceSquaredTo(ally.getLocation());
-            }
-
-        }
-        return closestAlly;
     }
 
     static void swarmArcon(RobotController rc, MapLocation location) throws GameActionException {
