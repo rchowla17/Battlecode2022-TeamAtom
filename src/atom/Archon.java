@@ -38,25 +38,33 @@ public class Archon {
         }*/
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
                 || rc.getArchonCount() != ogArchonNumber) {
+            System.out.println(Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)]);
 
             enemyArchonNear = false;
             checkEnemyNear(rc);
 
             if (!enemyArchonNear) {
                 if (startSpawn <= 3) {
+                    //System.out.println("start");
                     gameStartSequence(rc);
+                } else {
+                    normalSpawnSequence(rc);
                 }
-                normalSpawnSequence(rc);
             }
         }
     }
 
     public static void gameStartSequence(RobotController rc) throws GameActionException {
-        Direction dir = openSpawnLocation(rc, RobotType.MINER);
-        if (rc.canBuildRobot(RobotType.MINER, dir)) {
-            rc.buildRobot(RobotType.MINER, dir);
+        if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.MINER.buildCostLead) {
             Communication.increaseArchonSpawnIndex(rc);
-            startSpawn++;
+        } else {
+            Direction dir = openSpawnLocation(rc, RobotType.MINER);
+            if (rc.canBuildRobot(RobotType.MINER, dir)) {
+                //System.out.println("canbuild");
+                rc.buildRobot(RobotType.MINER, dir);
+                Communication.increaseArchonSpawnIndex(rc);
+                startSpawn++;
+            }
         }
     }
 
@@ -93,28 +101,31 @@ public class Archon {
 
         RobotType spawn = spawnOrder.get(spawnOrderCounter);
         Direction spawnDir = openSpawnLocation(rc, spawn);
-
-        switch (spawn) {
-            case SOLDIER:
-                if (rc.getTeamGoldAmount(rc.getTeam()) >= RobotType.SAGE.buildCostGold) {
-                    if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
-                        rc.buildRobot(RobotType.SAGE, spawnDir);
+        if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= spawn.buildCostLead) {
+            Communication.increaseArchonSpawnIndex(rc);
+        } else {
+            switch (spawn) {
+                case SOLDIER:
+                    if (rc.getTeamGoldAmount(rc.getTeam()) >= RobotType.SAGE.buildCostGold) {
+                        if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
+                            rc.buildRobot(RobotType.SAGE, spawnDir);
+                            Communication.increaseArchonSpawnIndex(rc);
+                            increaseSpawnOrderCounter();
+                        }
+                    } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                        rc.buildRobot(RobotType.SOLDIER, spawnDir);
                         Communication.increaseArchonSpawnIndex(rc);
                         increaseSpawnOrderCounter();
                     }
-                } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
-                    rc.buildRobot(RobotType.SOLDIER, spawnDir);
-                    Communication.increaseArchonSpawnIndex(rc);
-                    increaseSpawnOrderCounter();
-                }
-                break;
-            case MINER:
-                if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
-                    rc.buildRobot(RobotType.MINER, spawnDir);
-                    Communication.increaseArchonSpawnIndex(rc);
-                    increaseSpawnOrderCounter();
-                }
-                break;
+                    break;
+                case MINER:
+                    if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                        rc.buildRobot(RobotType.MINER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
+                        increaseSpawnOrderCounter();
+                    }
+                    break;
+            }
         }
     }
 
@@ -149,10 +160,14 @@ public class Archon {
                     || robot.getType() == RobotType.SAGE) {
                 //if (robot.getType() == RobotType.ARCHON) {
                 enemyArchonNear = true;
-                Direction spawnDirection = openSpawnLocation(rc, RobotType.SOLDIER);
-                if (rc.canBuildRobot(RobotType.SOLDIER, spawnDirection)) {
-                    rc.buildRobot(RobotType.SOLDIER, spawnDirection);
+                if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
                     Communication.increaseArchonSpawnIndex(rc);
+                } else {
+                    Direction spawnDirection = openSpawnLocation(rc, RobotType.SOLDIER);
+                    if (rc.canBuildRobot(RobotType.SOLDIER, spawnDirection)) {
+                        rc.buildRobot(RobotType.SOLDIER, spawnDirection);
+                        Communication.increaseArchonSpawnIndex(rc);
+                    }
                 }
             }
         }
