@@ -110,10 +110,10 @@ public class Soldier {
                             }
                         }
                     } else {
-                        /*MapLocation attackerLocation = target.location;
+                        MapLocation attackerLocation = target.location;
                         Direction escapeDir = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(attackerLocation).opposite());*/
-                        Direction escapeDir = Pathfinding.escapeEnemies(rc);
+                                rc.getLocation().directionTo(attackerLocation).opposite());
+                        //Direction escapeDir = Pathfinding.escapeEnemies(rc);
                         if (rc.canMove(escapeDir)) {
                             rc.move(escapeDir);
                         }
@@ -147,22 +147,46 @@ public class Soldier {
                     rc.attack(toAttack);
                 }
             } else {
-                if (closestEnemyArcon != 0) {
-                    //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
-                    Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
+                int closestEnemy = getClosestEnemy(rc);
+                if (closestEnemy != 0) {
+                    MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
+                    Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
-                        //rc.setIndicatorString("MOVINGTOARCON");
                     }
                 } else {
-                    int closestEnemy = getClosestEnemy(rc);
-                    if (closestEnemy != 0) {
-                        MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
-                        Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
+                    MapLocation farthestMinerFromBase = null;
+                    int minerDistanceFromBase = 0;
+
+                    RobotInfo[] allys = rc.senseNearbyRobots(-1, rc.getTeam());
+                    for (int i = 0; i < allys.length; i++) {
+                        RobotInfo ally = allys[i];
+                        if (ally.getType() == RobotType.MINER) {
+                            if (ally.getLocation()
+                                    .distanceSquaredTo(Data.spawnBaseLocation) > minerDistanceFromBase) {
+                                farthestMinerFromBase = ally.getLocation();
+                                minerDistanceFromBase = ally.getLocation()
+                                        .distanceSquaredTo(Data.spawnBaseLocation);
+                            }
+
+                        }
+                    }
+
+                    if (farthestMinerFromBase != null) {
+                        Direction dir = Pathfinding.greedyPathfinding(rc,
+                                rc.getLocation().directionTo(farthestMinerFromBase));
                         if (rc.canMove(dir)) {
                             rc.move(dir);
+                            //rc.setIndicatorString("MOVINGRAND");
                         }
-                    } else {
+                    } /*else if (closestEnemyArcon != 0) {
+                        //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
+                        Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
+                        if (rc.canMove(dir)) {
+                            rc.move(dir);
+                            //rc.setIndicatorString("MOVINGTOARCON");
+                        }
+                      } */else {
                         Direction dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);

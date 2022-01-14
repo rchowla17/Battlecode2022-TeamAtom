@@ -19,8 +19,8 @@ public class Archon {
         //allows for differing random numbers across instances on the same turn
         int random = (int) (Math.random() * 8);
         rc.writeSharedArray(61, random);
-        //random = (int) (Math.random() * 3);
-        //rc.writeSharedArray(60, random);
+        random = (int) (Math.random() * 6);
+        rc.writeSharedArray(60, random);
 
         UnitCounter.reset(rc);
 
@@ -43,7 +43,7 @@ public class Archon {
             checkEnemyNear(rc);
 
             if (!enemyArchonNear) {
-                if (startSpawn <= 4) {
+                if (startSpawn <= 3) {
                     gameStartSequence(rc);
                 }
                 normalSpawnSequence(rc);
@@ -85,6 +85,10 @@ public class Archon {
             spawnOrder.add(RobotType.SOLDIER);
         } else if (UnitCounter.getMiners(rc) < 80 && spawnOrder.size() == 4) {
             spawnOrder.remove(RobotType.SOLDIER);
+        }*/
+
+        /*if (rc.getRoundNum() > 150 && spawnOrder.size() == 2) {
+            spawnOrder.add(RobotType.SOLDIER);
         }*/
 
         RobotType spawn = spawnOrder.get(spawnOrderCounter);

@@ -3,9 +3,8 @@ package atom;
 import battlecode.common.*;
 import java.util.*;
 
-public class Miner {
+public class Miner2 {
     static MapLocation currentLoc;
-    static int randomMoves = 0;
 
     static void runMiner(RobotController rc) throws GameActionException {
         currentLoc = rc.getLocation();
@@ -16,18 +15,16 @@ public class Miner {
 
         UnitCounter.addMiner(rc);
 
-        rc.setIndicatorString("");
-
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
                 //stops unit from blocking spawn zone
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.ARCHON)
                         && rc.getLocation().distanceSquaredTo(robot.getLocation()) <= 4) {
-                    Direction dir = Pathfinding.wander(rc);
+                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    dir = Pathfinding.greedyPathfinding(rc, dir);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
-                        //rc.setIndicatorString("WANDER");
                     }
                 } else if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
                     nearbyMinerCount++;
@@ -35,27 +32,6 @@ public class Miner {
                         || robot.getType().equals(RobotType.SAGE)) {
 
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
-
-                    /*MapLocation closestSoldier = null;
-                    int distanceToSoldier = Integer.MAX_VALUE;
-                    RobotInfo[] alliesInVisionRange = rc.senseNearbyRobots(-1, rc.getTeam());
-                    for (int j = 0; j < alliesInVisionRange.length; j++) {
-                        RobotInfo ally = alliesInVisionRange[i];
-                        if (ally.getType() == RobotType.SOLDIER
-                                && rc.getLocation().distanceSquaredTo(ally.getLocation()) < distanceToSoldier) {
-                            closestSoldier = ally.getLocation();
-                            distanceToSoldier = rc.getLocation().distanceSquaredTo(ally.getLocation());
-                        }
-                    }
-                    
-                    if (closestSoldier != null) {
-                        Direction toSoldier = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(closestSoldier));
-                        if (rc.canMove(toSoldier)) {
-                            rc.move(toSoldier);
-                        }
-                    }*/
-
                     Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
                     dir = Pathfinding.greedyPathfinding(rc, dir);
                     //Direction dir = Pathfinding.escapeEnemies(rc);
@@ -68,20 +44,7 @@ public class Miner {
             }
         }
 
-        //tries to stop miners from flocking
-        int mapArea = rc.getMapWidth() * rc.getMapHeight();
-
-        if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
-            Direction dir = null;
-            dir = Pathfinding.wander(rc);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                rc.setIndicatorString("WANDERFROMFLOCK");
-            }
-        }
-
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
-
         MetalLocation target = findNearestMetalLocation(metalLocations, rc);
         int distanceToTarget = -1;
 
@@ -125,32 +88,6 @@ public class Miner {
                         }
                     }
                 }
-
-                //if there is cooldown left after mining, the unit will try to move to another target
-                /*
-                if (rc.isMovementReady()) {
-                    metalLocations = senseNearbyMetals(rc);
-                    target = findNearestMetalLocation(metalLocations, rc);
-                
-                    Direction dir = null;
-                    if (target != null) {
-                        //move towards target
-                        //dir = Pathfinding.basicBug(rc, target.location);
-                        dir = Pathfinding.greedyPathfinding(rc, target.location);
-                        if (rc.canMove(dir)) {
-                            rc.move(dir);
-                            rc.setIndicatorString("MOVINGTOTARGET");
-                        }
-                    } else {
-                        //random movement since there is no found target
-                        dir = Pathfinding.wander(rc);
-                        if (rc.canMove(dir)) {
-                            rc.move(dir);
-                            rc.setIndicatorString("WANDER");
-                            Data.randCounter++;
-                        }
-                    }
-                }*/
             } else {
                 MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(target.location,
                         RobotType.MINER.actionRadiusSquared);
@@ -172,15 +109,9 @@ public class Miner {
                         rc.move(moveToOptimalLocation);
                     }
                 }
-                /*
-                Direction dir = Pathfinding.greedyPathfinding(rc, target.location);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                    //rc.setIndicatorString("MOVINGTOTARGET");
-                }*/
             }
         } else {
-            Direction dir = Pathfinding.wander(rc);
+            Direction dir = Pathfinding.explore(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 //rc.setIndicatorString("WANDER");
