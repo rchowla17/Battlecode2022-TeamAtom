@@ -79,7 +79,7 @@ public class Miner {
             dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                rc.setIndicatorString("WANDERFROMFLOCK");
+                rc.setIndicatorString("wanderFROMFLOCK");
             }
         }
 

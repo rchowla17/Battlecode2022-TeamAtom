@@ -22,6 +22,8 @@ public class Archon {
         rc.writeSharedArray(61, random);
         random = (int) (Math.random() * 6);
         rc.writeSharedArray(60, random);
+        random = (int) (Math.random() * 3);
+        rc.writeSharedArray(62, random);
 
         UnitCounter.reset(rc);
 
@@ -215,6 +217,7 @@ public class Archon {
                     || robot.getType() == RobotType.SAGE) {
                 //if (robot.getType() == RobotType.ARCHON) {
                 enemyArchonNear = true;
+                Communication.sendDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
                 if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
                     Communication.increaseArchonSpawnIndex(rc);
                 } else {
@@ -225,6 +228,9 @@ public class Archon {
                     }
                 }
             }
+        }
+        if (!enemyArchonNear) {
+            Communication.endDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
         }
     }
 

@@ -1,9 +1,13 @@
 package atom;
 
 import battlecode.common.*;
+
+import java.time.Duration;
 import java.util.*;
 
 public class Soldier {
+    static boolean healing = false;
+
     static void runSoldier(RobotController rc) throws GameActionException {
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
@@ -24,6 +28,20 @@ public class Soldier {
                     Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
                 }
             }
+        }
+
+        if (rc.getHealth() < 10 || healing) {
+            healing = true;
+            if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared - 4) {
+                Direction dir = rc.getLocation().directionTo(Data.spawnBaseLocation);
+                dir = Pathfinding.greedyPathfinding(rc, dir);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            }
+        }
+        if (healing && rc.getHealth() >= 35) {
+            healing = false;
         }
 
         // Try to attack someone
@@ -48,7 +66,10 @@ public class Soldier {
             }
 
             MapLocation toAttack = target.getLocation();
-            Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(toAttack));
+
+            if (target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE) {
+                Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(toAttack));
+            }
 
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
@@ -177,7 +198,13 @@ public class Soldier {
                 }
             } else {
                 int closestEnemy = getClosestEnemy(rc);
-                if (closestEnemy != 0) {
+                if (Communication.checkDistressSignal(rc) != 0) {
+                    MapLocation base = Communication.convertIntToMapLocation(Communication.checkDistressSignal(rc));
+                    Direction dir = Pathfinding.greedyPathfinding(rc, base);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
+                    }
+                } else if (closestEnemy != 0) {
                     MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
                     Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
                     if (rc.canMove(dir)) {

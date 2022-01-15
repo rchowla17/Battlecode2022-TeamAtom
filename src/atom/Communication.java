@@ -154,6 +154,22 @@ public class Communication {
         return new MapLocation(x, y);
     }
 
+    static void sendDistressSignal(RobotController rc, int location) throws GameActionException {
+        if (rc.readSharedArray(59) == 0) {
+            rc.writeSharedArray(59, location);
+        }
+    }
+
+    static void endDistressSignal(RobotController rc, int location) throws GameActionException {
+        if (rc.readSharedArray(59) == location) {
+            setCommArrayIndexToZero(rc, 59);
+        }
+    }
+
+    static int checkDistressSignal(RobotController rc) throws GameActionException {
+        return rc.readSharedArray(59);
+    }
+
     static int convertMapLocationToInt(MapLocation location) {
         String x = String.format("%02d", location.x);
         String y = String.format("%02d", location.y);

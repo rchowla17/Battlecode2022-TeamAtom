@@ -50,91 +50,6 @@ public class Pathfinding {
         return basicBug(rc, dir);
     }
 
-    public static Direction advancedPathfinding(RobotController rc, Direction dir) throws GameActionException {
-        /*
-        find the direction to move like normal
-        go left or right from there and see if there's less rubble
-        */
-
-        if (dir == null) {
-            return Direction.CENTER;
-        } else if (rc.canMove(dir)) {
-            return dir;
-        } else {
-            Direction attemptDir = null;
-            for (int i = 1; i < 8; i++) {
-                switch (i) {
-                    case 1:
-                        attemptDir = dir.rotateRight();
-                        break;
-                    case 2:
-                        attemptDir = dir.rotateRight().rotateRight();
-                        break;
-                    case 3:
-                        attemptDir = dir.rotateRight().rotateRight().rotateRight();
-                        break;
-                    case 4:
-                        attemptDir = dir.rotateLeft();
-                        break;
-                    case 5:
-                        attemptDir = dir.rotateLeft().rotateLeft();
-                        break;
-                    case 6:
-                        attemptDir = dir.rotateLeft().rotateLeft().rotateLeft();
-                        break;
-                    case 7:
-                        attemptDir = dir.opposite();
-                        break;
-                    default:
-                        break;
-                }
-                Direction leftDir = attemptDir.rotateLeft();
-                Direction rightDir = attemptDir.rotateRight();
-                Direction leftlDir = attemptDir.rotateLeft().rotateLeft();
-                Direction rightrDir = attemptDir.rotateRight().rotateRight();
-
-                MapLocation frontLoc = rc.getLocation().add(attemptDir);
-                MapLocation leftLocation = rc.getLocation().add(leftDir);
-                MapLocation rightLocation = rc.getLocation().add(rightDir);
-                MapLocation leftlLocation = rc.getLocation().add(leftlDir);
-                MapLocation rightrLocation = rc.getLocation().add(rightrDir);
-
-                ArrayList<MapLocation> options = new ArrayList<MapLocation>();
-                if (rc.canSenseLocation(frontLoc)) {
-                    options.add(frontLoc);
-                }
-                if (rc.canSenseLocation(leftLocation)) {
-                    options.add(leftLocation);
-                }
-                if (rc.canSenseLocation(rightLocation)) {
-                    options.add(rightLocation);
-                }
-
-                /*
-                if (rc.canSenseLocation(rightrLocation)) {
-                    options.add(rightrLocation);
-                }
-                if (rc.canSenseLocation(leftlLocation)) {
-                    options.add(leftlLocation);
-                }
-                */
-
-                MapLocation best = leastRubble(rc, options);
-                attemptDir = rc.getLocation().directionTo(best);
-
-                if (rc.canMove(attemptDir)) {
-                    return attemptDir;
-                }
-            }
-            return Direction.CENTER;
-        }
-    }
-
-    public static Direction advancedPathfinding(RobotController rc, MapLocation target) throws GameActionException {
-        Direction dir = rc.getLocation().directionTo(target);
-        return advancedPathfinding(rc, dir);
-    }
-
     public static MapLocation leastRubble(RobotController rc, ArrayList<MapLocation> options)
             throws GameActionException {
         int minRubble = Integer.MAX_VALUE;
@@ -304,52 +219,6 @@ public class Pathfinding {
         return greedyPathfinding(rc, dir);
     }
 
-    public static Direction scoutBug(RobotController rc, Direction dir) throws GameActionException {
-        if (dir.equals(null)) {
-            return Direction.CENTER;
-        } else if (rc.canMove(dir)) {
-            return dir;
-        } else {
-            if (!rc.canSenseLocation(rc.getLocation().add(dir))) {
-                Builder.scoutDir = dir.rotateRight().rotateRight();
-                return dir.rotateRight().rotateRight();
-            } else {
-                Direction attemptDir = null;
-                for (int i = 1; i < 8; i++) {
-                    switch (i) {
-                        case 1:
-                            attemptDir = dir.rotateRight();
-                            break;
-                        case 2:
-                            attemptDir = dir.rotateLeft();
-                            break;
-                        case 3:
-                            attemptDir = dir.rotateRight().rotateRight();
-                            break;
-                        case 4:
-                            attemptDir = dir.rotateLeft().rotateLeft();
-                            break;
-                        case 5:
-                            attemptDir = dir.opposite().rotateRight();
-                            break;
-                        case 6:
-                            attemptDir = dir.opposite().rotateLeft();
-                            break;
-                        case 7:
-                            attemptDir = dir.opposite();
-                            break;
-                        default:
-                            break;
-                    }
-                    if (rc.canMove(attemptDir)) {
-                        return attemptDir;
-                    }
-                }
-                return Direction.CENTER;
-            }
-        }
-    }
-
     public static Direction randomDir(RobotController rc) throws GameActionException {
         //int random = rc.readSharedArray(61);
         int random = (int) (Math.random() * 8);
@@ -398,8 +267,6 @@ public class Pathfinding {
             attemptDir = attemptDir.rotateRight();
         }
 
-        //attemptDir = advancedPathfinding(rc, attemptDir);
-
         if (current.x == 0) {
             if (current.y > base.y)
                 attemptDir = attemptDir.rotateRight().rotateRight().rotateRight();
@@ -424,6 +291,8 @@ public class Pathfinding {
         return greedyPathfinding(rc, attemptDir);
     }
 
+    static int extended = 0;
+    static Direction extendedDirection = Direction.CENTER;
     static int extendedRand = 0;
     static Direction extendedRandDirection = Direction.CENTER;
     static int extendedWall = 0;
@@ -435,7 +304,9 @@ public class Pathfinding {
         int width = rc.getMapWidth();
 
         MapLocation base = Data.spawnBaseLocation;
-        Direction attemptDir = loc.directionTo(base).opposite();
+        MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
+        //Direction attemptDir = loc.directionTo(base).opposite();
+        Direction attemptDir = base.directionTo(center);
 
         int distThreshold = Integer.MAX_VALUE;
         if (attemptDir == Direction.NORTH || attemptDir == Direction.SOUTH) {
@@ -447,8 +318,8 @@ public class Pathfinding {
                     .sqrt(Math.pow(rc.getMapHeight(), 2) + Math.pow(rc.getMapWidth(), 2) * 3 / 5));
         }
 
+        int rand = (int) (Math.random() * 2);
         if (loc.x == 0) {
-            int rand = (int) (Math.random() * 2);
             if (rand == 0) {
                 extendedWallDirection = Direction.NORTHEAST;
             } else {
@@ -456,7 +327,7 @@ public class Pathfinding {
             }
             extendedWall = 5;
         } else if (loc.x == width - 1) {
-            int rand = (int) (Math.random() * 2);
+
             if (rand == 0) {
                 extendedWallDirection = Direction.NORTHWEST;
             } else {
@@ -464,7 +335,6 @@ public class Pathfinding {
             }
             extendedWall = 5;
         } else if (loc.y == 0) {
-            int rand = (int) (Math.random() * 2);
             if (rand == 0) {
                 extendedWallDirection = Direction.NORTHEAST;
             } else {
@@ -472,7 +342,6 @@ public class Pathfinding {
             }
             extendedWall = 5;
         } else if (loc.x == height - 1) {
-            int rand = (int) (Math.random() * 2);
             if (rand == 0) {
                 extendedWallDirection = Direction.SOUTHEAST;
             } else {
@@ -504,7 +373,27 @@ public class Pathfinding {
             }
         }
 
-        return greedyPathfinding(rc, attemptDir);
+        attemptDir = base.directionTo(center);
+        if (extended == 0) {
+            rand = rc.readSharedArray(62);
+
+            if (rand == 1) {
+                attemptDir = attemptDir.rotateLeft();
+            } else if (rand == 2) {
+                attemptDir = attemptDir.rotateRight();
+            }
+            extended = 2;
+            extendedDirection = attemptDir;
+            return greedyPathfinding(rc, extendedDirection);
+        } else {
+            attemptDir = greedyPathfinding(rc, extendedDirection);
+            if (rc.canMove(attemptDir)) {
+                extended--;
+            }
+            return greedyPathfinding(rc, extendedDirection);
+        }
+
+        //return greedyPathfinding(rc, attemptDir);
     }
 
     //static boolean hitCenter = false;

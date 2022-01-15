@@ -1,10 +1,13 @@
-new explore logic
-    miners go towards lead, only if it face away from home base
+bring soldiers back to heal
 
-spawn logic
+bring soldiers back to defend arcon
+
+soldiers go beyond miners
 
 soldiers check enemy rubble and health in soldier micro
 
 recode and check for .equals() vs == and .location vs .getLocation()
+
+
 
 
