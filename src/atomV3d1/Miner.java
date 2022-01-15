@@ -1,4 +1,4 @@
-package atom;
+package atomV3d1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -34,8 +34,8 @@ public class Miner {
                 RobotInfo robot = nearbyRobots[i];
                 if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
                     nearbyMinerCount++;
-                } else if (robot.getTeam().equals(opponent) && (robot.getType().equals(RobotType.SOLDIER)
-                        || robot.getType().equals(RobotType.SAGE))) {
+                } else if (robot.getTeam().equals(opponent) && robot.getType().equals(RobotType.SOLDIER)
+                        || robot.getType().equals(RobotType.SAGE)) {
 
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
 
@@ -94,7 +94,8 @@ public class Miner {
 
         for (MetalLocation loc : metalLocations) {
             int distanceToLoc = currentLoc.distanceSquaredTo(loc.location);
-            if (distanceToLoc < distanceToTarget) {
+            int distanceFromBase = loc.location.distanceSquaredTo(Data.spawnBaseLocation);
+            if (distanceFromBase > 2 && distanceToLoc < distanceToTarget) {
                 target = loc;
                 distanceToTarget = distanceToLoc;
             }
@@ -102,6 +103,7 @@ public class Miner {
 
         if (target != null) {
             MapLocation targetLoc = target.location;
+            distanceToTarget = currentLoc.distanceSquaredTo(target.location);
             //if target is within mining distance
             if (distanceToTarget <= 2) {
                 MapLocation[] surroundings = new MapLocation[] { targetLoc, targetLoc.add(Direction.NORTH),
