@@ -38,4 +38,6 @@ public class Data {
         }
         return 0;
     }
+
+    static Random rng = new Random();
 }

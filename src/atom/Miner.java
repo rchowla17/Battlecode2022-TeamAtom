@@ -74,14 +74,14 @@ public class Miner {
         //tries to stop miners from flocking
         int mapArea = rc.getMapWidth() * rc.getMapHeight();
 
-        if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
+        /*if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
             Direction dir = null;
-            dir = Pathfinding.wander(rc);
+            dir = Pathfinding.randomMiners(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 rc.setIndicatorString("wanderFROMFLOCK");
             }
-        }
+        }*/
 
         action(rc);
     }
@@ -171,7 +171,7 @@ public class Miner {
                 }
             }
         } else {
-            Direction dir = Pathfinding.wander(rc);
+            Direction dir = Pathfinding.randomMiners(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
@@ -286,5 +286,6 @@ public class Miner {
                 Data.spawnBaseLocation = robot.getLocation();
             }
         }
+        Data.rng = new Random(rc.getID());
     }
 }

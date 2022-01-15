@@ -454,6 +454,29 @@ public class Pathfinding {
         return greedyPathfinding(rc, current);
     }
 
+    public static MapLocation randomLocation = null;
+
+    public static Direction randomMiners(RobotController rc) throws GameActionException {
+        MapLocation loc = rc.getLocation();
+        int height = rc.getMapHeight();
+        int width = rc.getMapWidth();
+
+        //int r = (int) (Math.random() * (upper - lower)) + lower; upper bound is exclusive
+
+        if (randomLocation == null || loc.distanceSquaredTo(randomLocation) <= 16) {
+            int lower = 3;
+            int upper = width - 3;
+            //int x = (int) (Math.random() * (upper - lower)) + lower;
+            int x = Data.rng.nextInt(upper - lower) + lower;
+            upper = height - 3;
+            //int y = (int) (Math.random() * (upper - lower)) + lower;
+            int y = Data.rng.nextInt(upper - lower) + lower;
+            randomLocation = new MapLocation(x, y);
+            //System.out.println(randomLocation.toString());
+        }
+        return greedyPathfinding(rc, loc.directionTo(randomLocation));
+    }
+
     public static Direction escapeEnemies(RobotController rc) throws GameActionException {
         RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent()); //gets all within vision; 100 bytecode
         MapLocation destination = rc.getLocation();

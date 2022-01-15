@@ -1,12 +1,10 @@
-bring soldiers back to heal
-
-bring soldiers back to defend arcon
-
-soldiers go beyond miners
+soldiers go beyond miners?
 
 soldiers check enemy rubble and health in soldier micro
 
 recode and check for .equals() vs == and .location vs .getLocation()
+
+mine away deposits close to enemy
 
 
 
