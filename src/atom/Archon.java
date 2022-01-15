@@ -10,6 +10,7 @@ public class Archon {
     static int spawnOrderCounter = 0;
     static ArrayList<Direction> spawnDirections = new ArrayList<Direction>();
     static int ogArchonNumber = 0;
+    static boolean isMTS = false;
 
     static boolean enemyArchonNear = false;
 
@@ -44,8 +45,14 @@ public class Archon {
             if (!enemyArchonNear) {
                 if (startSpawn <= 3) {
                     gameStartSequence(rc);
+                } else if (startSpawn > 3 && startSpawn <= 6) {
+                    soldierStartSequence(rc);
                 } else {
-                    normalSpawnSequence(rc);
+                    if (isMTS) {
+                        normalSpawnSequence(rc);
+                    } else {
+                        newSpawnLogic(rc);
+                    }
                 }
             }
         }
@@ -58,6 +65,19 @@ public class Archon {
             Direction dir = openSpawnLocation(rc, RobotType.MINER);
             if (rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.buildRobot(RobotType.MINER, dir);
+                Communication.increaseArchonSpawnIndex(rc);
+                startSpawn++;
+            }
+        }
+    }
+
+    public static void soldierStartSequence(RobotController rc) throws GameActionException {
+        if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
+            Communication.increaseArchonSpawnIndex(rc);
+        } else {
+            Direction dir = openSpawnLocation(rc, RobotType.SOLDIER);
+            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                rc.buildRobot(RobotType.SOLDIER, dir);
                 Communication.increaseArchonSpawnIndex(rc);
                 startSpawn++;
             }
@@ -140,6 +160,65 @@ public class Archon {
         return Direction.CENTER;
     }
 
+    public static void newSpawnLogic(RobotController rc) throws GameActionException {
+        int leadAmnt = rc.getTeamLeadAmount(rc.getTeam());
+        int lastLeadAmnt = Communication.getLastLeadAmnt(rc);
+        int income = leadAmnt - lastLeadAmnt;
+        Communication.setLastLeadAmnt(rc, leadAmnt);
+
+        int[] metalLocation = Communication.getMetalLocations(rc);
+        int locations = 0;
+        for (int i = 0; i < metalLocation.length; i++) {
+            if (metalLocation[i] != 0) {
+                locations++;
+            }
+        }
+
+        RobotType spawn = spawnOrder.get(spawnOrderCounter);
+        Direction spawnDir = openSpawnLocation(rc, spawn);
+        switch (spawn) {
+            case SOLDIER:
+                if (rc.getTeamGoldAmount(rc.getTeam()) >= RobotType.SAGE.buildCostGold) {
+                    if (!rc.isActionReady() && rc.getTeamGoldAmount(rc.getTeam()) >= RobotType.SAGE.buildCostGold) {
+                        Communication.increaseArchonSpawnIndex(rc);
+                    } else if (rc.canBuildRobot(RobotType.SAGE, spawnDir)) {
+                        rc.buildRobot(RobotType.SAGE, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
+                        increaseSpawnOrderCounter();
+                    }
+                } else {
+                    if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
+                        Communication.increaseArchonSpawnIndex(rc);
+                    } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                        rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
+                        increaseSpawnOrderCounter();
+                    }
+                }
+                break;
+            case MINER:
+                int rand = (int) (Math.random() * 7);
+                if (rand != 0 && locations < 3 && locations != 6 && UnitCounter.getMiners(rc) >= 9) {
+                    if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
+                        Communication.increaseArchonSpawnIndex(rc);
+                    } else if (rc.canBuildRobot(RobotType.SOLDIER, spawnDir)) {
+                        rc.buildRobot(RobotType.SOLDIER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
+                        increaseSpawnOrderCounter();
+                    }
+                } else {
+                    if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.MINER.buildCostLead) {
+                        Communication.increaseArchonSpawnIndex(rc);
+                    } else if (rc.canBuildRobot(RobotType.MINER, spawnDir)) {
+                        rc.buildRobot(RobotType.MINER, spawnDir);
+                        Communication.increaseArchonSpawnIndex(rc);
+                        increaseSpawnOrderCounter();
+                    }
+                }
+                break;
+        }
+    }
+
     public static void increaseSpawnOrderCounter() {
         if (spawnOrderCounter >= spawnOrder.size() - 1) {
             spawnOrderCounter = 0;
@@ -195,5 +274,16 @@ public class Archon {
                 Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(robot.getLocation()), rc);
             }
         }*/
+        int amountOfLeadAround = 0;
+        MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(),
+                rc.getType().visionRadiusSquared);
+        for (int i = 0; i < surroundings.length; i++) {
+            if (rc.canSenseLocation(surroundings[i]) && rc.senseRubble(surroundings[i]) > 0) {
+                amountOfLeadAround++;
+            }
+        }
+        if (amountOfLeadAround >= 40) {
+            isMTS = true;
+        }
     }
 }

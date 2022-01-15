@@ -18,6 +18,17 @@ public class Miner {
 
         rc.setIndicatorString("");
 
+        int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
+        MapLocation closestPossibleMetalLocation = null;
+        if (closestPossibleMetal != 0) {
+            closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
+            if (rc.canSenseLocation(closestPossibleMetalLocation)) {
+                if (rc.senseLead(closestPossibleMetalLocation) < 10) {
+                    Communication.removeMetalLocation(closestPossibleMetal, rc);
+                }
+            }
+        }
+
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
@@ -243,6 +254,9 @@ public class Miner {
             if (distanceToLocFromBase > distanceToTargetFromBase && !foundGold) {
                 target = loc;
                 distanceToTargetFromBase = distanceToLocFromBase;
+                if (target.amount > 10) {
+                    Communication.addMetalLocation(rc, Communication.convertMapLocationToInt(target.location));
+                }
             }
         }
 
