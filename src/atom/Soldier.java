@@ -55,11 +55,13 @@ public class Soldier {
             }
 
             if ((target.getType() == RobotType.SOLDIER || target.getType() == RobotType.SAGE)
-                    && rc.getLocation().distanceSquaredTo(toAttack) < actionRadius) {
+                    && rc.getLocation().distanceSquaredTo(toAttack) <= actionRadius) {
                 Direction away = rc.getLocation().directionTo(toAttack).opposite();
                 away = Pathfinding.greedyPathfinding(rc, away);
-                if (rc.canMove(away)) {
-                    rc.move(away);
+                if (rc.senseRubble(rc.getLocation().add(away)) <= rc.senseRubble(rc.getLocation())) {
+                    if (rc.canMove(away)) {
+                        rc.move(away);
+                    }
                 }
             }
 
@@ -200,20 +202,25 @@ public class Soldier {
                     }
 
                     if (farthestMinerFromBase != null) {
+                        Direction minerAwayFromBase = Data.spawnBaseLocation.directionTo(farthestMinerFromBase);
+                        MapLocation inFrontOfMiner = farthestMinerFromBase.add(minerAwayFromBase).add(minerAwayFromBase)
+                                .add(minerAwayFromBase);
                         Direction dir = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(farthestMinerFromBase));
+                                rc.getLocation().directionTo(inFrontOfMiner));
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGRAND");
                         }
-                    } /*else if (closestEnemyArcon != 0) {
+                    }
+                    /*else if (closestEnemyArcon != 0) {
                         //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
                         Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGTOARCON");
                         }
-                      } */else {
+                      } */
+                    else {
                         Direction dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
