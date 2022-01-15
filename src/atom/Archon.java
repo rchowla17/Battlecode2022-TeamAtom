@@ -37,15 +37,16 @@ public class Archon {
                 }
             }
         }*/
+
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
                 || rc.getArchonCount() != ogArchonNumber) {
             enemyArchonNear = false;
             checkEnemyNear(rc);
 
             if (!enemyArchonNear) {
-                if (startSpawn <= 3) {
+                if (startSpawn < 3) {
                     gameStartSequence(rc);
-                } else if (startSpawn > 3 && startSpawn <= 6) {
+                } else if (startSpawn >= 3 && startSpawn < 6) {
                     soldierStartSequence(rc);
                 } else {
                     if (isMTS) {
@@ -54,8 +55,12 @@ public class Archon {
                         newSpawnLogic(rc);
                     }
                 }
+                if (rc.isActionReady()) {
+                    heal(rc);
+                }
             }
         }
+        heal(rc);
     }
 
     public static void gameStartSequence(RobotController rc) throws GameActionException {
@@ -89,31 +94,6 @@ public class Archon {
         int lastLeadAmnt = Communication.getLastLeadAmnt(rc);
         int income = leadAmnt - lastLeadAmnt;
         Communication.setLastLeadAmnt(rc, leadAmnt);
-        //System.out.println(income);
-
-        /*if (income > 0) {
-            if (income >= 25 && spawnOrder.size() == 3) {
-                spawnOrder.add(RobotType.SOLDIER);
-            } else if (income < 25 && spawnOrder.size() > 3) {
-                spawnOrder = new ArrayList<RobotType>();
-                spawnOrder.add(RobotType.SOLDIER);
-                spawnOrder.add(RobotType.SOLDIER);
-                spawnOrder.add(RobotType.MINER);
-                if (spawnOrderCounter > spawnOrder.size() - 1) {
-                    spawnOrderCounter = spawnOrder.size() - 1;
-                }
-            }
-        }*/
-
-        /*if (UnitCounter.getMiners(rc) > 100 && spawnOrder.size() == 3) {
-            spawnOrder.add(RobotType.SOLDIER);
-        } else if (UnitCounter.getMiners(rc) < 80 && spawnOrder.size() == 4) {
-            spawnOrder.remove(RobotType.SOLDIER);
-        }*/
-
-        /*if (rc.getRoundNum() > 150 && spawnOrder.size() == 2) {
-            spawnOrder.add(RobotType.SOLDIER);
-        }*/
 
         RobotType spawn = spawnOrder.get(spawnOrderCounter);
         Direction spawnDir = openSpawnLocation(rc, spawn);
@@ -197,7 +177,7 @@ public class Archon {
                 }
                 break;
             case MINER:
-                int rand = (int) (Math.random() * 7);
+                int rand = (int) (Math.random() * 4);
                 if (rand != 0 && locations < 3 && locations != 6 && UnitCounter.getMiners(rc) >= 9) {
                     if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
                         Communication.increaseArchonSpawnIndex(rc);
@@ -245,6 +225,30 @@ public class Archon {
                     }
                 }
             }
+        }
+    }
+
+    public static void heal(RobotController rc) throws GameActionException {
+        RobotInfo[] allys = rc.senseNearbyRobots(rc.getLocation(), rc.getType().actionCooldown, rc.getTeam());
+        RobotInfo ally = null;
+        int lowestValue = Integer.MAX_VALUE;
+        int lowestHealth = Integer.MAX_VALUE;
+        for (int i = 0; i < allys.length; i++) {
+            if (allys[i].getHealth() < allys[i].getType().health) {
+                int allyValue = Data.determineEnemyValue(allys[i]);
+                if (allyValue < lowestValue) {
+                    ally = allys[i];
+                    lowestValue = allyValue;
+                    lowestHealth = allys[i].getHealth();
+                } else if (allyValue == lowestValue && allys[i].getHealth() < lowestHealth) {
+                    ally = allys[i];
+                    lowestValue = allyValue;
+                    lowestHealth = allys[i].getHealth();
+                }
+            }
+        }
+        if (ally != null && rc.canRepair(ally.getLocation())) {
+            rc.repair(ally.getLocation());
         }
     }
 

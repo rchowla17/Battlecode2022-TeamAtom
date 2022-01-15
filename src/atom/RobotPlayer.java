@@ -13,7 +13,6 @@ public strictfp class RobotPlayer {
                 break;
             case MINER:
                 Miner.init(rc);
-                //Miner2.init(rc);
                 break;
             case SOLDIER:
                 Soldier.init(rc);
@@ -39,7 +38,6 @@ public strictfp class RobotPlayer {
                         break;
                     case MINER:
                         Miner.runMiner(rc);
-                        //Miner2.runMiner(rc);
                         break;
                     case SOLDIER:
                         Soldier.runSoldier(rc);

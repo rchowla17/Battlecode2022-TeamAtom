@@ -36,7 +36,11 @@ public class Soldier {
                 }
 
                 int enemyValue = Data.determineEnemyValue(enemiesInActionRadius[i]);
-                if (enemyValue <= targetValue && enemiesInActionRadius[i].health < targetHealth) {
+                if (enemyValue < targetValue) {
+                    target = enemiesInActionRadius[i];
+                    targetHealth = enemiesInActionRadius[i].health;
+                    targetValue = enemyValue;
+                } else if (enemyValue == targetValue && enemiesInActionRadius[i].health < targetHealth) {
                     target = enemiesInActionRadius[i];
                     targetHealth = enemiesInActionRadius[i].health;
                     targetValue = enemyValue;
