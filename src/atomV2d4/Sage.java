@@ -1,4 +1,4 @@
-package atomV1d2;
+package atomV2d4;
 
 import battlecode.common.*;
 import java.util.*;
@@ -7,9 +7,10 @@ public class Sage {
     static void runSage(RobotController rc) throws GameActionException {
         int actionRadius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
+
         RobotInfo[] enemies = rc.senseNearbyRobots(actionRadius, opponent);
+
         RobotInfo target = null;
-        int targetHealth = Integer.MAX_VALUE;
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
         //UnitCounter.addSage(rc);
@@ -42,7 +43,7 @@ public class Sage {
                 Communication.addEnemyLocation(rc, Integer.parseInt(locationS));
 
                 //Direction dir = Pathfinding.basicBug(rc, toAttack);
-                Direction dir = Pathfinding.advancedPathfinding(rc, toAttack);
+                Direction dir = Pathfinding.greedyPathfinding(rc, toAttack);
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
@@ -56,7 +57,7 @@ public class Sage {
 
                 if (closestEnemyArcon != 0) {
                     //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
-                    dir = Pathfinding.advancedPathfinding(rc, closestEnemyArconLocation);
+                    dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                         //rc.setIndicatorString("MOVINGTOARCON");
@@ -65,7 +66,7 @@ public class Sage {
                     int closestEnemy = Soldier.getClosestEnemy(rc);
                     if (closestEnemy != 0) {
                         MapLocation closestEnemyLocation = Communication.convertIntToMapLocation(closestEnemy);
-                        dir = Pathfinding.advancedPathfinding(rc, closestEnemyLocation);
+                        dir = Pathfinding.greedyPathfinding(rc, closestEnemyLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                         }

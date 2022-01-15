@@ -1,13 +1,9 @@
-package atomV1d2;
+package atomV2d4;
 
 import battlecode.common.*;
 import java.util.*;
 
 public class Communication {
-    static void communicateScoutMode(RobotController rc) throws GameActionException {
-        rc.writeSharedArray(63, 1);
-    }
-
     static void setCommArrayIndexToZero(RobotController rc, int index) throws GameActionException {
         rc.writeSharedArray(index, 0);
     }
@@ -119,12 +115,11 @@ public class Communication {
     }
 
     static int getArchonSpawnIndex(RobotController rc) throws GameActionException {
-        //return rc.readSharedArray(54) % rc.getArchonCount();
-        return rc.readSharedArray(54) % rc.getArchonCount();
+        return rc.readSharedArray(54);
     }
 
     static void increaseArchonSpawnIndex(RobotController rc) throws GameActionException {
-        if (rc.readSharedArray(54) == rc.getArchonCount()) {
+        if (rc.readSharedArray(54) >= rc.getArchonCount() - 1) {
             rc.writeSharedArray(54, 0);
         } else {
             rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
@@ -138,6 +133,14 @@ public class Communication {
         return ids;
     }
 
+    static void setLastLeadAmnt(RobotController rc, int value) throws GameActionException {
+        rc.writeSharedArray(63, value);
+    }
+
+    static int getLastLeadAmnt(RobotController rc) throws GameActionException {
+        return rc.readSharedArray(63);
+    }
+
     static MapLocation convertIntToMapLocation(int location) {
         String locationS = Integer.toString(location);
         int x = 0, y = 0;
@@ -149,5 +152,12 @@ public class Communication {
             y = Integer.parseInt(locationS.substring(2));
         }
         return new MapLocation(x, y);
+    }
+
+    static int convertMapLocationToInt(MapLocation location) {
+        String x = String.format("%02d", location.x);
+        String y = String.format("%02d", location.y);
+        String locationS = x + y;
+        return Integer.parseInt(locationS);
     }
 }

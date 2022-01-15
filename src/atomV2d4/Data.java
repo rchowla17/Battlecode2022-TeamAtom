@@ -1,4 +1,4 @@
-package atomV1d2;
+package atomV2d4;
 
 import battlecode.common.*;
 import java.util.*;
@@ -14,7 +14,6 @@ public class Data {
             Direction.NORTHWEST,
             Direction.NORTHEAST,
     };
-    static final Random rng = new Random(6147);
 
     static int randCounter = 0;
     static Direction randDirection = Direction.CENTER;

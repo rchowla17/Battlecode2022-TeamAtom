@@ -1,4 +1,4 @@
-package atomV1d2;
+package atomV2d4;
 
 import battlecode.common.*;
 import java.util.*;
