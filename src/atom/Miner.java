@@ -6,6 +6,7 @@ import java.util.*;
 public class Miner {
     static MapLocation currentLoc;
     static int randomMoves = 0;
+    static boolean healing = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         currentLoc = rc.getLocation();
@@ -13,6 +14,7 @@ public class Miner {
 
         UnitCounter.addMiner(rc);
         checkPossibleMetalLocationsExist(rc);
+        //checkNeedsHealing(rc);
 
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
         int nearbyMinerCount = 0;
@@ -20,10 +22,10 @@ public class Miner {
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
                 RobotInfo robot = nearbyRobots[i];
-                if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER)) {
+                if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.MINER) {
                     nearbyMinerCount++;
-                } else if (robot.getTeam().equals(opponent) && (robot.getType().equals(RobotType.SOLDIER)
-                        || robot.getType().equals(RobotType.SAGE))) {
+                } else if (robot.getTeam() == opponent && (robot.getType() == RobotType.SOLDIER
+                        || robot.getType() == RobotType.SAGE)) {
 
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
 
@@ -53,15 +55,16 @@ public class Miner {
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
-                } else if (robot.getTeam().equals(opponent)) {
+                } else if (robot.getTeam() == opponent) {
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
                 }
             }
         }
 
         //tries to stop miners from flocking
+        /*
         int mapArea = rc.getMapWidth() * rc.getMapHeight();
-
+        
         if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
             Direction dir = null;
             dir = Pathfinding.wander(rc);
@@ -69,14 +72,13 @@ public class Miner {
                 rc.move(dir);
                 rc.setIndicatorString("wanderFROMFLOCK");
             }
-        }
+        }*/
 
         action(rc);
     }
 
     static void action(RobotController rc) throws GameActionException {
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
-
         MetalLocation target = null;
         int distanceToTarget = Integer.MAX_VALUE;
 
@@ -120,14 +122,15 @@ public class Miner {
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
-                        if (target.type.equals("LEAD")) {
-                            while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
-                                rc.mineLead(mineLocation);
-                            }
-                        }
-                        if (target.type.equals("GOLD")) {
-                            while (rc.canMineGold(mineLocation)) {
-                                rc.mineGold(mineLocation);
+                        if (rc.canSenseLocation(mineLocation)) {
+                            if (rc.senseLead(mineLocation) > 2) {
+                                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
+                                    rc.mineLead(mineLocation);
+                                }
+                            } else if (rc.senseGold(mineLocation) > 0) {
+                                while (rc.canMineGold(mineLocation)) {
+                                    rc.mineGold(mineLocation);
+                                }
                             }
                         }
                     }
@@ -138,6 +141,44 @@ public class Miner {
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
+        }
+    }
+
+    static void checkNeedsHealing(RobotController rc) throws GameActionException {
+        if (rc.getHealth() < 10 || healing) {
+            healing = true;
+
+            int[] allyArchons = Communication.getArchonLocations(rc);
+            MapLocation closestBase = null;
+            int distanceToClosest = Integer.MAX_VALUE;
+
+            for (int i = 0; i < allyArchons.length; i++) {
+                if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
+                        .distanceSquaredTo(rc.getLocation()) < distanceToClosest) {
+                    closestBase = Communication.convertIntToMapLocation(allyArchons[i]);
+                    distanceToClosest = Communication.convertIntToMapLocation(allyArchons[i])
+                            .distanceSquaredTo(rc.getLocation());
+                }
+            }
+
+            if (closestBase != null
+                    && closestBase.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared - 4) {
+                Direction dir = rc.getLocation().directionTo(closestBase);
+                dir = Pathfinding.greedyPathfinding(rc, dir);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            } else if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared
+                    - 4) {
+                Direction dir = rc.getLocation().directionTo(Data.spawnBaseLocation);
+                dir = Pathfinding.greedyPathfinding(rc, dir);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            }
+        }
+        if (healing && rc.getHealth() >= 30) {
+            healing = false;
         }
     }
 

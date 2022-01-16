@@ -17,14 +17,6 @@ public class Archon {
     //static boolean seenEnemy = false;
 
     static void runArchon(RobotController rc) throws GameActionException {
-        //allows for differing random numbers across instances on the same turn
-        int random = (int) (Math.random() * 8);
-        rc.writeSharedArray(61, random);
-        random = (int) (Math.random() * 6);
-        rc.writeSharedArray(60, random);
-        random = (int) (Math.random() * 3);
-        rc.writeSharedArray(62, random);
-
         UnitCounter.reset(rc);
 
         if (rc.getRoundNum() % 3 == 0) {
@@ -215,7 +207,6 @@ public class Archon {
             RobotInfo robot = robots[i];
             if (robot.getType() == RobotType.ARCHON || robot.getType() == RobotType.SOLDIER
                     || robot.getType() == RobotType.SAGE) {
-                //if (robot.getType() == RobotType.ARCHON) {
                 enemyArchonNear = true;
                 Communication.sendDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
                 if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
@@ -260,6 +251,7 @@ public class Archon {
 
     public static void init(RobotController rc) throws GameActionException {
         Communication.addArchonId(rc, rc.getID());
+        Communication.addArchonLocation(rc, Communication.convertMapLocationToInt(rc.getLocation()));
         ogArchonNumber = rc.getArchonCount();
 
         spawnOrder.add(RobotType.SOLDIER);
@@ -284,6 +276,7 @@ public class Archon {
                 Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(robot.getLocation()), rc);
             }
         }*/
+
         int amountOfLeadAround = 0;
         MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(rc.getLocation(),
                 rc.getType().visionRadiusSquared);
@@ -295,5 +288,6 @@ public class Archon {
         if (amountOfLeadAround >= 40) {
             isMTS = true;
         }
+        Data.rng = new Random(rc.getID());
     }
 }

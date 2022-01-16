@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Pathfinding {
     public static Direction basicBug(RobotController rc, Direction dir) throws GameActionException {
-        if (dir.equals(null)) {
+        if (dir == null) {
             return Direction.CENTER;
         } else if (rc.canMove(dir)) {
             return dir;
@@ -79,13 +79,13 @@ public class Pathfinding {
             //MapLocation rightrLocation = rc.getLocation().add(rightrDir);
 
             ArrayList<MapLocation> options = new ArrayList<MapLocation>();
-            if (rc.canSenseLocation(frontLoc)) {
+            if (rc.canSenseLocation(frontLoc) && !rc.canSenseRobotAtLocation(frontLoc)) {
                 options.add(frontLoc);
             }
-            if (rc.canSenseLocation(leftLocation)) {
+            if (rc.canSenseLocation(leftLocation) && !rc.canSenseRobotAtLocation(leftLocation)) {
                 options.add(leftLocation);
             }
-            if (rc.canSenseLocation(rightLocation)) {
+            if (rc.canSenseLocation(rightLocation) && !rc.canSenseRobotAtLocation(rightLocation)) {
                 options.add(rightLocation);
             }
             /*
@@ -97,6 +97,7 @@ public class Pathfinding {
             }*/
 
             MapLocation best = leastRubble(rc, options);
+
             if (best != null && rc.senseRubble(best) == 99) {
                 MapLocation loc = rc.getLocation();
                 if (rc.canMove(dir.rotateLeft().rotateLeft()) && rc.canMove(dir.rotateRight().rotateRight())
@@ -152,65 +153,6 @@ public class Pathfinding {
                 }
             }
         }
-        /*
-        if (rc.canMove(dir.rotateLeft().rotateLeft())) {
-            return dir.rotateLeft().rotateLeft();
-        } else if (rc.canMove(dir.rotateRight().rotateRight())) {
-            return dir.rotateRight().rotateRight();
-        } else if (rc.canMove(dir.opposite().rotateLeft())) {
-            return dir.opposite().rotateLeft();
-        } else if (rc.canMove(dir.opposite().rotateRight())) {
-            return dir.opposite().rotateRight();
-        } else if (rc.canMove(dir.opposite())) {
-            return dir.opposite();
-        }*/
-        MapLocation loc = rc.getLocation();
-        if (rc.canMove(dir.rotateLeft().rotateLeft()) && rc.canMove(dir.rotateRight().rotateRight())
-                && rc.canSenseLocation(loc.add(dir.rotateLeft().rotateLeft()))
-                && rc.canSenseLocation(loc.add(dir.rotateRight().rotateRight()))
-                && rc.senseRubble(loc.add(dir.rotateLeft().rotateLeft())) < 99
-                && rc.senseRubble(loc.add(dir.rotateRight().rotateRight())) < 99) {
-            int rubbleLeft = rc.senseRubble(loc.add(dir.rotateLeft().rotateLeft()));
-            int rubbleRight = rc.senseRubble(loc.add(dir.rotateRight().rotateRight()));
-            if (rubbleLeft <= rubbleRight) {
-                return dir.rotateLeft().rotateLeft();
-            } else {
-                return dir.rotateRight().rotateRight();
-            }
-        } else if (rc.canMove(dir.rotateLeft().rotateLeft())
-                && rc.canSenseLocation(loc.add(dir.rotateLeft().rotateLeft()))
-                && rc.senseRubble(loc.add(dir.rotateLeft().rotateLeft())) < 99) {
-            return dir.rotateLeft().rotateLeft();
-        } else if (rc.canMove(dir.rotateRight().rotateRight())
-                && rc.canSenseLocation(loc.add(dir.rotateRight().rotateRight()))
-                && rc.senseRubble(loc.add(dir.rotateRight().rotateRight())) < 99) {
-            return dir.rotateRight().rotateRight();
-        } else if (rc.canMove(dir.opposite().rotateLeft()) && rc.canMove(dir.opposite().rotateRight())
-                && rc.canSenseLocation(loc.add(dir.opposite().rotateLeft()))
-                && rc.canSenseLocation(loc.add(dir.opposite().rotateRight()))
-                && rc.senseRubble(loc.add(dir.opposite().rotateLeft())) < 99
-                && rc.senseRubble(loc.add(dir.opposite().rotateRight())) < 99) {
-            int rubbleLeft = rc.senseRubble(loc.add(dir.opposite().rotateLeft()));
-            int rubbleRight = rc.senseRubble(loc.add(dir.opposite().rotateRight()));
-            if (rubbleLeft <= rubbleRight) {
-                return dir.opposite().rotateLeft();
-            } else {
-                return dir.opposite().rotateRight();
-            }
-        } else if (rc.canMove(dir.opposite().rotateLeft())
-                && rc.canSenseLocation(loc.add(dir.opposite().rotateLeft()))
-                && rc.senseRubble(loc.add(dir.opposite().rotateLeft())) < 99) {
-            return dir.opposite().rotateLeft();
-        } else if (rc.canMove(dir.opposite().rotateRight())
-                && rc.canSenseLocation(loc.add(dir.opposite().rotateRight()))
-                && rc.senseRubble(loc.add(dir.opposite().rotateRight())) < 99) {
-            return dir.opposite().rotateRight();
-        } else if (rc.canMove(dir.opposite())
-                && rc.canSenseLocation(loc.add(dir.opposite()))
-                && rc.senseRubble(loc.add(dir.opposite())) < 99) {
-            return dir.opposite();
-        }
-
         return Direction.CENTER;
     }
 
@@ -220,8 +162,7 @@ public class Pathfinding {
     }
 
     public static Direction randomDir(RobotController rc) throws GameActionException {
-        //int random = rc.readSharedArray(61);
-        int random = (int) (Math.random() * 8);
+        int random = Data.rng.nextInt(8);
         Direction dir = Data.directions[random];
         return dir;
     }
@@ -375,7 +316,7 @@ public class Pathfinding {
 
         attemptDir = base.directionTo(center);
         if (extended == 0) {
-            rand = rc.readSharedArray(62);
+            rand = Data.rng.nextInt(3);
 
             if (rand == 1) {
                 attemptDir = attemptDir.rotateLeft();
@@ -408,7 +349,7 @@ public class Pathfinding {
 
         Direction toCenter = rc.getLocation().directionTo(center);
         if (current == null) {
-            int rand = rc.readSharedArray(60);
+            int rand = Data.rng.nextInt(6);
             if (rand == 0) {
                 current = toCenter;
             } else if (rand == 1) {

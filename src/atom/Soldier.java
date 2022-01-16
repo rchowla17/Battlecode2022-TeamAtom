@@ -25,7 +25,7 @@ public class Soldier {
         if (enemiesInActionRadius.length > 0) {
             for (int i = 0; i < enemiesInActionRadius.length; i++) {
                 RobotInfo enemy = enemiesInActionRadius[i];
-                if (enemy.getType().equals(RobotType.ARCHON)) {
+                if (enemy.getType() == RobotType.ARCHON) {
                     Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(enemy.getLocation()), rc);
                     swarmArcon(rc, enemy.getLocation());
                 }
@@ -74,7 +74,7 @@ public class Soldier {
             if (enemiesInVisionRange.length > 0) {
                 for (int i = 0; i < enemiesInVisionRange.length; i++) {
                     RobotInfo enemy = enemiesInVisionRange[i];
-                    if (enemy.getType().equals(RobotType.ARCHON)) {
+                    if (enemy.getType() == RobotType.ARCHON) {
                         Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(enemy.getLocation()),
                                 rc);
                     } else if (enemy.getType() == RobotType.SOLDIER || enemy.getType() == RobotType.SAGE) {
@@ -171,9 +171,20 @@ public class Soldier {
                 }
             } else {
                 int closestEnemy = getClosestEnemy(rc);
-                if (Communication.checkDistressSignal(rc) != 0) {
-                    MapLocation base = Communication.convertIntToMapLocation(Communication.checkDistressSignal(rc));
-                    Direction dir = Pathfinding.greedyPathfinding(rc, base);
+                int[] distressSignals = Communication.checkDistressSignal(rc);
+                MapLocation distressLocation = null;
+                int leastDistressDistance = Integer.MAX_VALUE;
+                for (int i = 0; i < distressSignals.length; i++) {
+                    if (distressSignals[i] != 0) {
+                        MapLocation loc = Communication.convertIntToMapLocation(distressSignals[i]);
+                        if (rc.getLocation().distanceSquaredTo(loc) < leastDistressDistance) {
+                            distressLocation = loc;
+                            leastDistressDistance = rc.getLocation().distanceSquaredTo(loc);
+                        }
+                    }
+                }
+                if (distressLocation != null) {
+                    Direction dir = Pathfinding.greedyPathfinding(rc, distressLocation);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
@@ -324,5 +335,6 @@ public class Soldier {
                 Data.spawnBaseLocation = robot.getLocation();
             }
         }
+        Data.rng = new Random(rc.getID());
     }
 }

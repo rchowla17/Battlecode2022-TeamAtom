@@ -3,6 +3,15 @@ package atom;
 import battlecode.common.*;
 import java.util.*;
 
+//0-3 enemyArchon
+//4-9 metalLocation
+//10-15 enemyLocation
+//49 = rand
+//50-53 archonId
+//54 spawnIndex
+//55-58 distressSignals
+//59-62 archonLocations
+//63 lastLeadAmount
 public class Communication {
     static void setCommArrayIndexToZero(RobotController rc, int index) throws GameActionException {
         rc.writeSharedArray(index, 0);
@@ -114,6 +123,29 @@ public class Communication {
         }
     }
 
+    static int[] getArchonIds(RobotController rc) throws GameActionException {
+        int[] ids = new int[] { rc.readSharedArray(50), rc.readSharedArray(51), rc.readSharedArray(52),
+                rc.readSharedArray(53) };
+        return ids;
+    }
+
+    static void addArchonLocation(RobotController rc, int location) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(59), rc.readSharedArray(60), rc.readSharedArray(61),
+                rc.readSharedArray(62) };
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i] == 0) {
+                rc.writeSharedArray(i + 59, location);
+                break;
+            }
+        }
+    }
+
+    static int[] getArchonLocations(RobotController rc) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(59), rc.readSharedArray(60), rc.readSharedArray(61),
+                rc.readSharedArray(62) };
+        return locations;
+    }
+
     static int getArchonSpawnIndex(RobotController rc) throws GameActionException {
         return rc.readSharedArray(54);
     }
@@ -125,12 +157,6 @@ public class Communication {
             rc.writeSharedArray(54, rc.readSharedArray(54) + 1);
         }
 
-    }
-
-    static int[] getArchonIds(RobotController rc) throws GameActionException {
-        int[] ids = new int[] { rc.readSharedArray(50), rc.readSharedArray(51), rc.readSharedArray(52),
-                rc.readSharedArray(53) };
-        return ids;
     }
 
     static void setLastLeadAmnt(RobotController rc, int value) throws GameActionException {
@@ -155,19 +181,31 @@ public class Communication {
     }
 
     static void sendDistressSignal(RobotController rc, int location) throws GameActionException {
-        if (rc.readSharedArray(59) == 0) {
-            rc.writeSharedArray(59, location);
+        int[] locations = new int[] { rc.readSharedArray(55), rc.readSharedArray(56), rc.readSharedArray(57),
+                rc.readSharedArray(58) };
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i] == 0) {
+                rc.writeSharedArray(i + 55, location);
+                break;
+            }
         }
     }
 
     static void endDistressSignal(RobotController rc, int location) throws GameActionException {
-        if (rc.readSharedArray(59) == location) {
-            setCommArrayIndexToZero(rc, 59);
+        int[] locations = new int[] { rc.readSharedArray(55), rc.readSharedArray(56), rc.readSharedArray(57),
+                rc.readSharedArray(58) };
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i] == location) {
+                setCommArrayIndexToZero(rc, i + 55);
+                break;
+            }
         }
     }
 
-    static int checkDistressSignal(RobotController rc) throws GameActionException {
-        return rc.readSharedArray(59);
+    static int[] checkDistressSignal(RobotController rc) throws GameActionException {
+        int[] locations = new int[] { rc.readSharedArray(55), rc.readSharedArray(56), rc.readSharedArray(57),
+                rc.readSharedArray(58) };
+        return locations;
     }
 
     static int convertMapLocationToInt(MapLocation location) {
