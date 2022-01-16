@@ -78,6 +78,9 @@ public class Miner {
     }
 
     static void action(RobotController rc) throws GameActionException {
+        //boolean shouldEcoterroism = false;
+        //boolean shouldEcoterroism = checkShouldEcoterroism(rc);
+
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
         MetalLocation target = null;
         int distanceToTarget = Integer.MAX_VALUE;
@@ -177,8 +180,42 @@ public class Miner {
                 }
             }
         }
-        if (healing && rc.getHealth() >= 30) {
+        if (healing && rc.getHealth() >= 35) {
             healing = false;
+        }
+    }
+
+    static boolean checkShouldEcoterroism(RobotController rc) throws GameActionException {
+        int[] allyArchons = Communication.getArchonLocations(rc);
+        MapLocation closestAllyBase = null;
+        int distanceToClosestAllyBase = Integer.MAX_VALUE;
+
+        for (int i = 0; i < allyArchons.length; i++) {
+            if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
+                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestAllyBase) {
+                closestAllyBase = Communication.convertIntToMapLocation(allyArchons[i]);
+                distanceToClosestAllyBase = Communication.convertIntToMapLocation(allyArchons[i])
+                        .distanceSquaredTo(rc.getLocation());
+            }
+        }
+
+        int[] enemyArchons = Communication.getEnemyArconLocations(rc);
+        MapLocation closestEnemyBase = null;
+        int distanceToClosestEnemyBase = Integer.MAX_VALUE;
+        for (int i = 0; i < enemyArchons.length; i++) {
+            if (enemyArchons[i] != 0 && Communication.convertIntToMapLocation(enemyArchons[i])
+                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestEnemyBase) {
+                closestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i]);
+                distanceToClosestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i])
+                        .distanceSquaredTo(rc.getLocation());
+            }
+        }
+
+        if (closestAllyBase != null && closestEnemyBase != null
+                && distanceToClosestEnemyBase <= distanceToClosestAllyBase - 25) {
+            return true;
+        } else {
+            return false;
         }
     }
 

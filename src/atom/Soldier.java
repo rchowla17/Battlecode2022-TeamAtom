@@ -322,7 +322,7 @@ public class Soldier {
                 }
             }
         }
-        if (healing && rc.getHealth() >= 35) {
+        if (healing && rc.getHealth() >= 45) {
             healing = false;
         }
     }

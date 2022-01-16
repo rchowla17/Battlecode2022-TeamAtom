@@ -13,6 +13,7 @@ public class Archon {
     static boolean isMTS = false;
 
     static boolean enemyArchonNear = false;
+    static boolean enemyNear = false;
 
     //static boolean seenEnemy = false;
 
@@ -32,11 +33,12 @@ public class Archon {
             }
         }*/
 
+        enemyArchonNear = false;
+        enemyNear = false;
+        checkEnemyNear(rc);
+
         if (Communication.getArchonIds(rc)[Communication.getArchonSpawnIndex(rc)] == rc.getID()
                 || rc.getArchonCount() != ogArchonNumber) {
-            enemyArchonNear = false;
-            checkEnemyNear(rc);
-
             if (!enemyArchonNear) {
                 if (startSpawn < 3) {
                     gameStartSequence(rc);
@@ -207,9 +209,10 @@ public class Archon {
             RobotInfo robot = robots[i];
             if (robot.getType() == RobotType.ARCHON || robot.getType() == RobotType.SOLDIER
                     || robot.getType() == RobotType.SAGE) {
-                enemyArchonNear = true;
+                enemyNear = true;
                 Communication.sendDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
                 if (robot.getType() == RobotType.ARCHON) {
+                    enemyArchonNear = true;
                     if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
                         Communication.increaseArchonSpawnIndex(rc);
                     } else {
@@ -222,32 +225,55 @@ public class Archon {
                 }
             }
         }
-        if (!enemyArchonNear) {
+        if (!enemyNear) {
             Communication.endDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
         }
     }
 
     public static void heal(RobotController rc) throws GameActionException {
         RobotInfo[] allys = rc.senseNearbyRobots(rc.getLocation(), rc.getType().actionCooldown, rc.getTeam());
-        RobotInfo ally = null;
-        int lowestValue = Integer.MAX_VALUE;
-        int lowestHealth = Integer.MAX_VALUE;
-        for (int i = 0; i < allys.length; i++) {
-            if (allys[i].getHealth() < allys[i].getType().health) {
-                int allyValue = Data.determineEnemyValue(allys[i]);
-                if (allyValue < lowestValue) {
-                    ally = allys[i];
-                    lowestValue = allyValue;
-                    lowestHealth = allys[i].getHealth();
-                } else if (allyValue == lowestValue && allys[i].getHealth() < lowestHealth) {
-                    ally = allys[i];
-                    lowestValue = allyValue;
-                    lowestHealth = allys[i].getHealth();
+        if (enemyNear) {
+            RobotInfo ally = null;
+            int lowestValue = Integer.MAX_VALUE;
+            int lowestHealth = Integer.MAX_VALUE;
+            for (int i = 0; i < allys.length; i++) {
+                if (allys[i].getHealth() < allys[i].getType().health) {
+                    int allyValue = Data.determineEnemyValue(allys[i]);
+                    if (allyValue < lowestValue) {
+                        ally = allys[i];
+                        lowestValue = allyValue;
+                        lowestHealth = allys[i].getHealth();
+                    } else if (allyValue == lowestValue && allys[i].getHealth() < lowestHealth) {
+                        ally = allys[i];
+                        lowestValue = allyValue;
+                        lowestHealth = allys[i].getHealth();
+                    }
                 }
             }
-        }
-        if (ally != null && rc.canRepair(ally.getLocation())) {
-            rc.repair(ally.getLocation());
+            if (ally != null && rc.canRepair(ally.getLocation())) {
+                rc.repair(ally.getLocation());
+            }
+        } else {
+            RobotInfo ally = null;
+            int lowestValue = Integer.MAX_VALUE;
+            int highestHealth = Integer.MAX_VALUE;
+            for (int i = 0; i < allys.length; i++) {
+                if (allys[i].getHealth() < allys[i].getType().health) {
+                    int allyValue = Data.determineEnemyValue(allys[i]);
+                    if (allyValue < lowestValue) {
+                        ally = allys[i];
+                        lowestValue = allyValue;
+                        highestHealth = allys[i].getHealth();
+                    } else if (allyValue == lowestValue && allys[i].getHealth() > highestHealth) {
+                        ally = allys[i];
+                        lowestValue = allyValue;
+                        highestHealth = allys[i].getHealth();
+                    }
+                }
+            }
+            if (ally != null && rc.canRepair(ally.getLocation())) {
+                rc.repair(ally.getLocation());
+            }
         }
     }
 
