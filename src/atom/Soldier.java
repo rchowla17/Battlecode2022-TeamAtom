@@ -18,33 +18,10 @@ public class Soldier {
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
         UnitCounter.addSoldier(rc);
+        checkArconExist(rc);
+        checkNeedsHealing(rc);
 
-        int closestEnemyArcon = getClosestEnemyArcon(rc);
-        MapLocation closestEnemyArconLocation = null;
-        if (closestEnemyArcon != 0) {
-            closestEnemyArconLocation = Communication.convertIntToMapLocation(closestEnemyArcon);
-            if (rc.canSenseLocation(closestEnemyArconLocation)) {
-                if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
-                    Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
-                }
-            }
-        }
-
-        if (rc.getHealth() < 10 || healing) {
-            healing = true;
-            if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared - 4) {
-                Direction dir = rc.getLocation().directionTo(Data.spawnBaseLocation);
-                dir = Pathfinding.greedyPathfinding(rc, dir);
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                }
-            }
-        }
-        if (healing && rc.getHealth() >= 35) {
-            healing = false;
-        }
-
-        // Try to attack someone
+        // enemies within action radius
         if (enemiesInActionRadius.length > 0) {
             for (int i = 0; i < enemiesInActionRadius.length; i++) {
                 RobotInfo enemy = enemiesInActionRadius[i];
@@ -85,11 +62,6 @@ public class Soldier {
                     }
                 }
             }
-
-            /*Direction toTarget = Pathfinding.greedyPathfinding(rc, toAttack);
-            if (rc.canMove(toTarget)) {
-                rc.move(toTarget);
-            }*/
         } else {
             int visionRadius = rc.getType().visionRadiusSquared;
             RobotInfo[] enemiesInVisionRange = rc.senseNearbyRobots(visionRadius, opponent);
@@ -127,6 +99,7 @@ public class Soldier {
                     }
                 }
 
+                //run away if outnumbered
                 if (allyAttackersCount < enemyAttackersCount && !nearAllyArchon) {
                     if (allyAttackersCount != 0) {
                         RobotInfo nearestAlly = getClosestAlly(rc, alliesInVisionRange);
@@ -311,6 +284,35 @@ public class Soldier {
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
+        }
+    }
+
+    static void checkArconExist(RobotController rc) throws GameActionException {
+        int closestEnemyArcon = getClosestEnemyArcon(rc);
+        MapLocation closestEnemyArconLocation = null;
+        if (closestEnemyArcon != 0) {
+            closestEnemyArconLocation = Communication.convertIntToMapLocation(closestEnemyArcon);
+            if (rc.canSenseLocation(closestEnemyArconLocation)) {
+                if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
+                    Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
+                }
+            }
+        }
+    }
+
+    static void checkNeedsHealing(RobotController rc) throws GameActionException {
+        if (rc.getHealth() < 10 || healing) {
+            healing = true;
+            if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared - 4) {
+                Direction dir = rc.getLocation().directionTo(Data.spawnBaseLocation);
+                dir = Pathfinding.greedyPathfinding(rc, dir);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            }
+        }
+        if (healing && rc.getHealth() >= 35) {
+            healing = false;
         }
     }
 

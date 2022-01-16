@@ -11,23 +11,11 @@ public class Miner {
         currentLoc = rc.getLocation();
         Team opponent = rc.getTeam().opponent();
 
+        UnitCounter.addMiner(rc);
+        checkPossibleMetalLocationsExist(rc);
+
         RobotInfo[] nearbyRobots = rc.senseNearbyRobots();
         int nearbyMinerCount = 0;
-
-        UnitCounter.addMiner(rc);
-
-        rc.setIndicatorString("");
-
-        int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
-        MapLocation closestPossibleMetalLocation = null;
-        if (closestPossibleMetal != 0) {
-            closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
-            if (rc.canSenseLocation(closestPossibleMetalLocation)) {
-                if (rc.senseLead(closestPossibleMetalLocation) < 10) {
-                    Communication.removeMetalLocation(closestPossibleMetal, rc);
-                }
-            }
-        }
 
         if (nearbyRobots.length > 0) {
             for (int i = 0; i < nearbyRobots.length; i++) {
@@ -74,14 +62,14 @@ public class Miner {
         //tries to stop miners from flocking
         int mapArea = rc.getMapWidth() * rc.getMapHeight();
 
-        /*if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
+        if (nearbyMinerCount > 2 && UnitCounter.getMiners(rc) < mapArea / 8) {
             Direction dir = null;
-            dir = Pathfinding.randomMiners(rc);
+            dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 rc.setIndicatorString("wanderFROMFLOCK");
             }
-        }*/
+        }
 
         action(rc);
     }
@@ -102,33 +90,33 @@ public class Miner {
 
         if (target != null) {
             MapLocation targetLoc = target.location;
+
+            MapLocation[] surroundings = new MapLocation[] { targetLoc, targetLoc.add(Direction.NORTH),
+                    targetLoc.add(Direction.WEST), targetLoc.add(Direction.EAST), targetLoc.add(Direction.SOUTH),
+                    targetLoc.add(Direction.NORTHEAST), targetLoc.add(Direction.NORTHWEST),
+                    targetLoc.add(Direction.SOUTHEAST), targetLoc.add(Direction.SOUTHWEST) };
+
+            MapLocation leastRubbleLocation = null;
+            int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
+
+            for (int i = 0; i < surroundings.length; i++) {
+                int distanceFromBase = surroundings[i].distanceSquaredTo(Data.spawnBaseLocation);
+                if (distanceFromBase > 2 && rc.canSenseLocation(surroundings[i])
+                        && !rc.canSenseRobotAtLocation(surroundings[i])
+                        && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
+                    leastRubbleLocation = surroundings[i];
+                    rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
+                }
+            }
+
+            if (leastRubbleLocation != null) {
+                Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
+                if (rc.canMove(moveToOptimalLocation)) {
+                    rc.move(moveToOptimalLocation);
+                }
+            }
             //if target is within mining distance
             if (distanceToTarget <= 2) {
-                MapLocation[] surroundings = new MapLocation[] { targetLoc, targetLoc.add(Direction.NORTH),
-                        targetLoc.add(Direction.WEST), targetLoc.add(Direction.EAST), targetLoc.add(Direction.SOUTH),
-                        targetLoc.add(Direction.NORTHEAST), targetLoc.add(Direction.NORTHWEST),
-                        targetLoc.add(Direction.SOUTHEAST), targetLoc.add(Direction.SOUTHWEST) };
-
-                MapLocation leastRubbleLocation = null;
-                int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
-
-                for (int i = 0; i < surroundings.length; i++) {
-                    int distanceFromBase = surroundings[i].distanceSquaredTo(Data.spawnBaseLocation);
-                    if (distanceFromBase > 2 && rc.canSenseLocation(surroundings[i])
-                            && !rc.canSenseRobotAtLocation(surroundings[i])
-                            && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
-                        leastRubbleLocation = surroundings[i];
-                        rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
-                    }
-                }
-
-                if (leastRubbleLocation != null) {
-                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                    if (rc.canMove(moveToOptimalLocation)) {
-                        rc.move(moveToOptimalLocation);
-                    }
-                }
-
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
@@ -144,34 +132,9 @@ public class Miner {
                         }
                     }
                 }
-            } else {
-                MapLocation[] surroundings = new MapLocation[] { targetLoc, targetLoc.add(Direction.NORTH),
-                        targetLoc.add(Direction.WEST), targetLoc.add(Direction.EAST), targetLoc.add(Direction.SOUTH),
-                        targetLoc.add(Direction.NORTHEAST), targetLoc.add(Direction.NORTHWEST),
-                        targetLoc.add(Direction.SOUTHEAST), targetLoc.add(Direction.SOUTHWEST) };
-
-                MapLocation leastRubbleLocation = null;
-                int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
-
-                for (int i = 0; i < surroundings.length; i++) {
-                    int distanceFromBase = surroundings[i].distanceSquaredTo(Data.spawnBaseLocation);
-                    if (distanceFromBase > 2 && rc.canSenseLocation(surroundings[i])
-                            && !rc.canSenseRobotAtLocation(surroundings[i])
-                            && rc.senseRubble(surroundings[i]) < rubbleAtleastRubbleLocation) {
-                        leastRubbleLocation = surroundings[i];
-                        rubbleAtleastRubbleLocation = rc.senseRubble(surroundings[i]);
-                    }
-                }
-
-                if (leastRubbleLocation != null) {
-                    Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
-                    if (rc.canMove(moveToOptimalLocation)) {
-                        rc.move(moveToOptimalLocation);
-                    }
-                }
             }
         } else {
-            Direction dir = Pathfinding.randomMiners(rc);
+            Direction dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
@@ -276,6 +239,19 @@ public class Miner {
             }
         }
         return closestMetalLocation;
+    }
+
+    static void checkPossibleMetalLocationsExist(RobotController rc) throws GameActionException {
+        int closestPossibleMetal = getClosestPossibleMetalLocation(rc);
+        MapLocation closestPossibleMetalLocation = null;
+        if (closestPossibleMetal != 0) {
+            closestPossibleMetalLocation = Communication.convertIntToMapLocation(closestPossibleMetal);
+            if (rc.canSenseLocation(closestPossibleMetalLocation)) {
+                if (rc.senseLead(closestPossibleMetalLocation) < 10) {
+                    Communication.removeMetalLocation(closestPossibleMetal, rc);
+                }
+            }
+        }
     }
 
     static void init(RobotController rc) throws GameActionException {
