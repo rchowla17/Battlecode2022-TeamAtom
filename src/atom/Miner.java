@@ -137,7 +137,7 @@ public class Miner {
                 }
             }
         } else {
-            Direction dir = Pathfinding.wander(rc);
+            Direction dir = Pathfinding.explore(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }

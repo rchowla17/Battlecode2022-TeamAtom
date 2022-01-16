@@ -404,18 +404,26 @@ public class Pathfinding {
 
         //int r = (int) (Math.random() * (upper - lower)) + lower; upper bound is exclusive
 
-        if (randomLocation == null || loc.distanceSquaredTo(randomLocation) <= 16) {
-            int lower = 3;
-            int upper = width - 3;
-            //int x = (int) (Math.random() * (upper - lower)) + lower;
+        if (randomLocation == null || loc.distanceSquaredTo(randomLocation) <= 20) {
+            int lower = 0;
+            int upper = width;
             int x = Data.rng.nextInt(upper - lower) + lower;
-            upper = height - 3;
-            //int y = (int) (Math.random() * (upper - lower)) + lower;
+            upper = height;
             int y = Data.rng.nextInt(upper - lower) + lower;
             randomLocation = new MapLocation(x, y);
-            //System.out.println(randomLocation.toString());
         }
         return greedyPathfinding(rc, loc.directionTo(randomLocation));
+    }
+
+    public static void setNewExploreLocation(RobotController rc) throws GameActionException {
+        int height = rc.getMapHeight();
+        int width = rc.getMapWidth();
+        int lower = 0;
+        int upper = width;
+        int x = Data.rng.nextInt(upper - lower) + lower;
+        upper = height;
+        int y = Data.rng.nextInt(upper - lower) + lower;
+        randomLocation = new MapLocation(x, y);
     }
 
     public static Direction escapeEnemies(RobotController rc) throws GameActionException {
