@@ -427,6 +427,28 @@ public class Pathfinding {
                 destination.add(awayFromEnemy);
             }
         }
+
+        if (rc.getLocation().directionTo(destination) == Direction.CENTER) {
+            MapLocation closestAllyArchon = getClosestAllyArchon(rc);
+            destination = closestAllyArchon;
+        }
         return greedyPathfinding(rc, destination);
+    }
+
+    static MapLocation getClosestAllyArchon(RobotController rc) throws GameActionException {
+        int[] allyArchons = Communication.getArchonLocations(rc);
+        MapLocation closestBase = null;
+        int distanceToClosest = Integer.MAX_VALUE;
+
+        for (int i = 0; i < allyArchons.length; i++) {
+            if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
+                    .distanceSquaredTo(rc.getLocation()) < distanceToClosest) {
+                closestBase = Communication.convertIntToMapLocation(allyArchons[i]);
+                distanceToClosest = Communication.convertIntToMapLocation(allyArchons[i])
+                        .distanceSquaredTo(rc.getLocation());
+            }
+        }
+
+        return closestBase;
     }
 }

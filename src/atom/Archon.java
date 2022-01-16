@@ -209,13 +209,15 @@ public class Archon {
                     || robot.getType() == RobotType.SAGE) {
                 enemyArchonNear = true;
                 Communication.sendDistressSignal(rc, Communication.convertMapLocationToInt(rc.getLocation()));
-                if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
-                    Communication.increaseArchonSpawnIndex(rc);
-                } else {
-                    Direction spawnDirection = openSpawnLocation(rc, RobotType.SOLDIER);
-                    if (rc.canBuildRobot(RobotType.SOLDIER, spawnDirection)) {
-                        rc.buildRobot(RobotType.SOLDIER, spawnDirection);
+                if (robot.getType() == RobotType.ARCHON) {
+                    if (!rc.isActionReady() && rc.getTeamLeadAmount(rc.getTeam()) >= RobotType.SOLDIER.buildCostLead) {
                         Communication.increaseArchonSpawnIndex(rc);
+                    } else {
+                        Direction spawnDirection = openSpawnLocation(rc, RobotType.SOLDIER);
+                        if (rc.canBuildRobot(RobotType.SOLDIER, spawnDirection)) {
+                            rc.buildRobot(RobotType.SOLDIER, spawnDirection);
+                            Communication.increaseArchonSpawnIndex(rc);
+                        }
                     }
                 }
             }

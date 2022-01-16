@@ -110,10 +110,10 @@ public class Soldier {
                             }
                         }
                     } else {
-                        MapLocation attackerLocation = target.getLocation();
+                        /*MapLocation attackerLocation = target.getLocation();
                         Direction escapeDir = Pathfinding.greedyPathfinding(rc,
-                                rc.getLocation().directionTo(attackerLocation).opposite());
-                        //Direction escapeDir = Pathfinding.escapeEnemies(rc);
+                                rc.getLocation().directionTo(attackerLocation).opposite());*/
+                        Direction escapeDir = Pathfinding.escapeEnemies(rc);
                         if (rc.canMove(escapeDir)) {
                             rc.move(escapeDir);
                         }
@@ -151,10 +151,10 @@ public class Soldier {
                                 }
                             }
                         } else {
-                            MapLocation attackerLocation = target.getLocation();
+                            /*MapLocation attackerLocation = target.getLocation();
                             Direction escapeDir = Pathfinding.greedyPathfinding(rc,
-                                    rc.getLocation().directionTo(attackerLocation).opposite());
-                            //Direction escapeDir = Pathfinding.escapeEnemies(rc);
+                                    rc.getLocation().directionTo(attackerLocation).opposite());*/
+                            Direction escapeDir = Pathfinding.escapeEnemies(rc);
                             if (rc.canMove(escapeDir)) {
                                 rc.move(escapeDir);
                             }
