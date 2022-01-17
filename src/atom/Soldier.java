@@ -202,7 +202,7 @@ public class Soldier {
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
-                } else {
+                } else if (!healing) {
                     MapLocation farthestMinerFromBase = null;
                     int minerDistanceFromBase = 0;
 
@@ -320,7 +320,8 @@ public class Soldier {
     static void checkNeedsHealing(RobotController rc) throws GameActionException {
         if (rc.getHealth() < 10 || healing) {
             healing = true;
-            if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) > RobotType.ARCHON.actionRadiusSquared - 4) {
+            if (Data.spawnBaseLocation.distanceSquaredTo(rc.getLocation()) >= RobotType.ARCHON.actionRadiusSquared
+                    - 4) {
                 Direction dir = rc.getLocation().directionTo(Data.spawnBaseLocation);
                 dir = Pathfinding.greedyPathfinding(rc, dir);
                 if (rc.canMove(dir)) {

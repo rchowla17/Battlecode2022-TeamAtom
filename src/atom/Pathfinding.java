@@ -151,6 +151,10 @@ public class Pathfinding {
                 if (rc.canMove(bestDir)) {
                     return bestDir;
                 }
+            } else {
+                if (rc.canMove(dir)) {
+                    return dir;
+                }
             }
         }
         return Direction.CENTER;
@@ -412,6 +416,8 @@ public class Pathfinding {
             int y = Data.rng.nextInt(upper - lower) + lower;
             randomLocation = new MapLocation(x, y);
         }
+
+        //System.out.println(randomLocation.toString());
         return greedyPathfinding(rc, loc.directionTo(randomLocation));
     }
 

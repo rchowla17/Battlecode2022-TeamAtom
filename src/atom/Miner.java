@@ -129,14 +129,28 @@ public class Miner {
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
-                        if (rc.canSenseLocation(mineLocation)) {
-                            if (rc.senseLead(mineLocation) > 2) {
-                                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
-                                    rc.mineLead(mineLocation);
+                        if (shouldEcoterroism) {
+                            if (rc.canSenseLocation(mineLocation)) {
+                                if (rc.senseLead(mineLocation) > 0) {
+                                    while (rc.canMineLead(mineLocation)) {
+                                        rc.mineLead(mineLocation);
+                                    }
+                                } else if (rc.senseGold(mineLocation) > 0) {
+                                    while (rc.canMineGold(mineLocation)) {
+                                        rc.mineGold(mineLocation);
+                                    }
                                 }
-                            } else if (rc.senseGold(mineLocation) > 0) {
-                                while (rc.canMineGold(mineLocation)) {
-                                    rc.mineGold(mineLocation);
+                            }
+                        } else {
+                            if (rc.canSenseLocation(mineLocation)) {
+                                if (rc.senseLead(mineLocation) > 2) {
+                                    while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
+                                        rc.mineLead(mineLocation);
+                                    }
+                                } else if (rc.senseGold(mineLocation) > 0) {
+                                    while (rc.canMineGold(mineLocation)) {
+                                        rc.mineGold(mineLocation);
+                                    }
                                 }
                             }
                         }
@@ -144,7 +158,7 @@ public class Miner {
                 }
             }
         } else {
-            Direction dir = Pathfinding.explore(rc);
+            Direction dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
             }
