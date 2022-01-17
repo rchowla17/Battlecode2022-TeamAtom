@@ -1,19 +1,19 @@
-package atom;
+package atomV4d4d1;
 
 import battlecode.common.*;
 import java.util.*;
 
-public class Miner {
+public class Miner2 {
     static MapLocation currentLoc;
     static int randomMoves = 0;
     static boolean healing = false;
-    static boolean shouldEcoterroism = false;
+    static boolean nearEnemyArcon = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         currentLoc = rc.getLocation();
         Team opponent = rc.getTeam().opponent();
+        nearEnemyArcon = false;
 
-        shouldEcoterroism = false;
         UnitCounter.addMiner(rc);
         checkPossibleMetalLocationsExist(rc);
         //checkNeedsHealing(rc);
@@ -51,17 +51,16 @@ public class Miner {
                         }
                     }*/
 
-                    //Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
-                    //dir = Pathfinding.greedyPathfinding(rc, dir);
-                    Direction dir = Pathfinding.escapeEnemies(rc);
+                    Direction dir = rc.getLocation().directionTo(robot.getLocation()).opposite();
+                    dir = Pathfinding.greedyPathfinding(rc, dir);
+                    //Direction dir = Pathfinding.escapeEnemies(rc);
                     if (rc.canMove(dir)) {
                         rc.move(dir);
                     }
+                } else if (robot.getTeam() == opponent && robot.getType() == RobotType.ARCHON) {
+                    Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(robot.getLocation()), rc);
                 } else if (robot.getTeam() == opponent) {
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
-                    if (robot.getType() == RobotType.MINER && currentLoc.distanceSquaredTo(robot.getLocation()) <= 4) {
-                        shouldEcoterroism = true;
-                    }
                 }
             }
         }
@@ -83,7 +82,7 @@ public class Miner {
     }
 
     static void action(RobotController rc) throws GameActionException {
-        checkShouldEcoterroism(rc);
+        checkNearEnemyArcon(rc);
 
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
         MetalLocation target = null;
@@ -118,7 +117,8 @@ public class Miner {
                 }
             }
 
-            if (leastRubbleLocation != null) {
+            if (leastRubbleLocation != null
+                    && rc.senseRubble(leastRubbleLocation) <= rc.senseRubble(rc.getLocation())) {
                 Direction moveToOptimalLocation = Pathfinding.greedyPathfinding(rc, leastRubbleLocation);
                 if (rc.canMove(moveToOptimalLocation)) {
                     rc.move(moveToOptimalLocation);
@@ -130,13 +130,25 @@ public class Miner {
                     for (int dy = -1; dy <= 1; dy++) {
                         MapLocation mineLocation = new MapLocation(target.location.x + dx, target.location.y + dy);
                         if (rc.canSenseLocation(mineLocation)) {
-                            if (rc.senseLead(mineLocation) > 2) {
-                                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
-                                    rc.mineLead(mineLocation);
+                            if (!nearEnemyArcon) {
+                                if (rc.senseLead(mineLocation) > 2) {
+                                    while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 2) {
+                                        rc.mineLead(mineLocation);
+                                    }
+                                } else if (rc.senseGold(mineLocation) > 0) {
+                                    while (rc.canMineGold(mineLocation)) {
+                                        rc.mineGold(mineLocation);
+                                    }
                                 }
-                            } else if (rc.senseGold(mineLocation) > 0) {
-                                while (rc.canMineGold(mineLocation)) {
-                                    rc.mineGold(mineLocation);
+                            } else {
+                                if (rc.senseLead(mineLocation) > 0) {
+                                    while (rc.canMineLead(mineLocation)) {
+                                        rc.mineLead(mineLocation);
+                                    }
+                                } else if (rc.senseGold(mineLocation) > 0) {
+                                    while (rc.canMineGold(mineLocation)) {
+                                        rc.mineGold(mineLocation);
+                                    }
                                 }
                             }
                         }
@@ -144,9 +156,35 @@ public class Miner {
                 }
             }
         } else {
-            Direction dir = Pathfinding.explore(rc);
+            Direction dir = Pathfinding.wander(rc);
             if (rc.canMove(dir)) {
                 rc.move(dir);
+            }
+        }
+    }
+
+    static void checkNearEnemyArcon(RobotController rc) throws GameActionException {
+        int[] allyArchons = Communication.getArchonLocations(rc);
+        MapLocation closestBase = null;
+        int distanceToClosest = Integer.MAX_VALUE;
+
+        for (int i = 0; i < allyArchons.length; i++) {
+            if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
+                    .distanceSquaredTo(rc.getLocation()) < distanceToClosest) {
+                closestBase = Communication.convertIntToMapLocation(allyArchons[i]);
+                distanceToClosest = Communication.convertIntToMapLocation(allyArchons[i])
+                        .distanceSquaredTo(rc.getLocation());
+            }
+        }
+
+        int[] enemyArchons = Communication.getEnemyArconLocations(rc);
+        for (int i = 0; i < enemyArchons.length; i++) {
+            if (enemyArchons[i] != 0) {
+                int distanceToEnemyArchon = rc.getLocation()
+                        .distanceSquaredTo(Communication.convertIntToMapLocation(enemyArchons[i]));
+                if (closestBase != null && distanceToEnemyArchon <= distanceToClosest - 25) {
+                    nearEnemyArcon = true;
+                }
             }
         }
     }
@@ -184,40 +222,8 @@ public class Miner {
                 }
             }
         }
-        if (healing && rc.getHealth() >= 35) {
+        if (healing && rc.getHealth() >= 30) {
             healing = false;
-        }
-    }
-
-    static void checkShouldEcoterroism(RobotController rc) throws GameActionException {
-        int[] allyArchons = Communication.getArchonLocations(rc);
-        MapLocation closestAllyBase = null;
-        int distanceToClosestAllyBase = Integer.MAX_VALUE;
-
-        for (int i = 0; i < allyArchons.length; i++) {
-            if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
-                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestAllyBase) {
-                closestAllyBase = Communication.convertIntToMapLocation(allyArchons[i]);
-                distanceToClosestAllyBase = Communication.convertIntToMapLocation(allyArchons[i])
-                        .distanceSquaredTo(rc.getLocation());
-            }
-        }
-
-        int[] enemyArchons = Communication.getEnemyArconLocations(rc);
-        MapLocation closestEnemyBase = null;
-        int distanceToClosestEnemyBase = Integer.MAX_VALUE;
-        for (int i = 0; i < enemyArchons.length; i++) {
-            if (enemyArchons[i] != 0 && Communication.convertIntToMapLocation(enemyArchons[i])
-                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestEnemyBase) {
-                closestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i]);
-                distanceToClosestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i])
-                        .distanceSquaredTo(rc.getLocation());
-            }
-        }
-
-        if (closestAllyBase != null && closestEnemyBase != null
-                && distanceToClosestEnemyBase <= distanceToClosestAllyBase - 25) {
-            shouldEcoterroism = true;
         }
     }
 
@@ -225,6 +231,9 @@ public class Miner {
         int vision = rc.getType().visionRadiusSquared;
         ArrayList<MetalLocation> metalLocations = new ArrayList<MetalLocation>();
         MapLocation[] locations = rc.senseNearbyLocationsWithLead(vision, 3);
+        if (nearEnemyArcon) {
+            locations = rc.senseNearbyLocationsWithLead(vision);
+        }
         for (int i = 0; i < locations.length; i++) {
             MapLocation senseLoc = locations[i];
             int amnt = rc.senseLead(senseLoc);

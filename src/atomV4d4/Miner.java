@@ -1,4 +1,4 @@
-package atom;
+package atomV4d4;
 
 import battlecode.common.*;
 import java.util.*;
@@ -7,13 +7,12 @@ public class Miner {
     static MapLocation currentLoc;
     static int randomMoves = 0;
     static boolean healing = false;
-    static boolean shouldEcoterroism = false;
+    static boolean nearEnemyArchon = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         currentLoc = rc.getLocation();
         Team opponent = rc.getTeam().opponent();
 
-        shouldEcoterroism = false;
         UnitCounter.addMiner(rc);
         checkPossibleMetalLocationsExist(rc);
         //checkNeedsHealing(rc);
@@ -59,9 +58,6 @@ public class Miner {
                     }
                 } else if (robot.getTeam() == opponent) {
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
-                    if (robot.getType() == RobotType.MINER && currentLoc.distanceSquaredTo(robot.getLocation()) <= 4) {
-                        shouldEcoterroism = true;
-                    }
                 }
             }
         }
@@ -83,8 +79,6 @@ public class Miner {
     }
 
     static void action(RobotController rc) throws GameActionException {
-        checkShouldEcoterroism(rc);
-
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
         MetalLocation target = null;
         int distanceToTarget = Integer.MAX_VALUE;
@@ -189,35 +183,29 @@ public class Miner {
         }
     }
 
-    static void checkShouldEcoterroism(RobotController rc) throws GameActionException {
+    static void checkNearEnemyArcon(RobotController rc) throws GameActionException {
         int[] allyArchons = Communication.getArchonLocations(rc);
-        MapLocation closestAllyBase = null;
-        int distanceToClosestAllyBase = Integer.MAX_VALUE;
+        MapLocation closestBase = null;
+        int distanceToClosest = Integer.MAX_VALUE;
 
         for (int i = 0; i < allyArchons.length; i++) {
             if (allyArchons[i] != 0 && Communication.convertIntToMapLocation(allyArchons[i])
-                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestAllyBase) {
-                closestAllyBase = Communication.convertIntToMapLocation(allyArchons[i]);
-                distanceToClosestAllyBase = Communication.convertIntToMapLocation(allyArchons[i])
+                    .distanceSquaredTo(rc.getLocation()) < distanceToClosest) {
+                closestBase = Communication.convertIntToMapLocation(allyArchons[i]);
+                distanceToClosest = Communication.convertIntToMapLocation(allyArchons[i])
                         .distanceSquaredTo(rc.getLocation());
             }
         }
 
         int[] enemyArchons = Communication.getEnemyArconLocations(rc);
-        MapLocation closestEnemyBase = null;
-        int distanceToClosestEnemyBase = Integer.MAX_VALUE;
         for (int i = 0; i < enemyArchons.length; i++) {
-            if (enemyArchons[i] != 0 && Communication.convertIntToMapLocation(enemyArchons[i])
-                    .distanceSquaredTo(rc.getLocation()) < distanceToClosestEnemyBase) {
-                closestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i]);
-                distanceToClosestEnemyBase = Communication.convertIntToMapLocation(enemyArchons[i])
-                        .distanceSquaredTo(rc.getLocation());
+            if (enemyArchons[i] != 0) {
+                int distanceToEnemyArchon = rc.getLocation()
+                        .distanceSquaredTo(Communication.convertIntToMapLocation(enemyArchons[i]));
+                if (closestBase != null && distanceToEnemyArchon <= distanceToClosest - 25) {
+                    nearEnemyArchon = true;
+                }
             }
-        }
-
-        if (closestAllyBase != null && closestEnemyBase != null
-                && distanceToClosestEnemyBase <= distanceToClosestAllyBase - 25) {
-            shouldEcoterroism = true;
         }
     }
 

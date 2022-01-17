@@ -1,4 +1,4 @@
-package atom;
+package atomV4d4d1;
 
 import battlecode.common.*;
 import java.util.*;
@@ -7,13 +7,11 @@ public class Miner {
     static MapLocation currentLoc;
     static int randomMoves = 0;
     static boolean healing = false;
-    static boolean shouldEcoterroism = false;
 
     static void runMiner(RobotController rc) throws GameActionException {
         currentLoc = rc.getLocation();
         Team opponent = rc.getTeam().opponent();
 
-        shouldEcoterroism = false;
         UnitCounter.addMiner(rc);
         checkPossibleMetalLocationsExist(rc);
         //checkNeedsHealing(rc);
@@ -59,9 +57,6 @@ public class Miner {
                     }
                 } else if (robot.getTeam() == opponent) {
                     Communication.addEnemyLocation(rc, Communication.convertMapLocationToInt(robot.getLocation()));
-                    if (robot.getType() == RobotType.MINER && currentLoc.distanceSquaredTo(robot.getLocation()) <= 4) {
-                        shouldEcoterroism = true;
-                    }
                 }
             }
         }
@@ -83,7 +78,8 @@ public class Miner {
     }
 
     static void action(RobotController rc) throws GameActionException {
-        checkShouldEcoterroism(rc);
+        //boolean shouldEcoterroism = false;
+        //boolean shouldEcoterroism = checkShouldEcoterroism(rc);
 
         ArrayList<MetalLocation> metalLocations = senseNearbyMetals(rc);
         MetalLocation target = null;
@@ -189,7 +185,7 @@ public class Miner {
         }
     }
 
-    static void checkShouldEcoterroism(RobotController rc) throws GameActionException {
+    static boolean checkShouldEcoterroism(RobotController rc) throws GameActionException {
         int[] allyArchons = Communication.getArchonLocations(rc);
         MapLocation closestAllyBase = null;
         int distanceToClosestAllyBase = Integer.MAX_VALUE;
@@ -217,7 +213,9 @@ public class Miner {
 
         if (closestAllyBase != null && closestEnemyBase != null
                 && distanceToClosestEnemyBase <= distanceToClosestAllyBase - 25) {
-            shouldEcoterroism = true;
+            return true;
+        } else {
+            return false;
         }
     }
 
