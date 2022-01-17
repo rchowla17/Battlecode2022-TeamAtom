@@ -18,8 +18,19 @@ public class Soldier {
         int targetValue = Integer.MAX_VALUE; //sage = 1, soldier = 2, builder = 3, archon = 4, miner = 5
 
         UnitCounter.addSoldier(rc);
-        checkArconExist(rc);
+        //checkArconExist(rc);
         checkNeedsHealing(rc);
+
+        int closestEnemyArcon = getClosestEnemyArcon(rc);
+        MapLocation closestEnemyArconLocation = null;
+        if (closestEnemyArcon != 0) {
+            closestEnemyArconLocation = Communication.convertIntToMapLocation(closestEnemyArcon);
+            if (rc.canSenseLocation(closestEnemyArconLocation)) {
+                if (rc.senseRobotAtLocation(closestEnemyArconLocation) == null) {
+                    Communication.removeEnemyArconLocation(closestEnemyArcon, rc);
+                }
+            }
+        }
 
         // enemies within action radius
         if (enemiesInActionRadius.length > 0) {
@@ -121,11 +132,8 @@ public class Soldier {
                 }
 
                 MapLocation toAttack = target.getLocation();
-                Communication.addEnemyArconLocation(Communication.convertMapLocationToInt(target.getLocation()),
-                        rc);
 
-                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(toAttack,
-                        actionRadius + 2);
+                MapLocation[] surroundings = rc.getAllLocationsWithinRadiusSquared(toAttack, actionRadius + 2);
                 MapLocation leastRubbleLocation = null;
                 int rubbleAtleastRubbleLocation = Integer.MAX_VALUE;
 
@@ -222,16 +230,14 @@ public class Soldier {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGRAND");
                         }
-                    }
-                    /*else if (closestEnemyArcon != 0) {
+                    } else if (closestEnemyArcon != 0) {
                         //dir = Pathfinding.basicBug(rc, closestEnemyArconLocation);
                         Direction dir = Pathfinding.greedyPathfinding(rc, closestEnemyArconLocation);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
                             //rc.setIndicatorString("MOVINGTOARCON");
                         }
-                      } */
-                    else {
+                    } else {
                         Direction dir = Pathfinding.wander(rc);
                         if (rc.canMove(dir)) {
                             rc.move(dir);
